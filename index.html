@@ -42,13 +42,24 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
     
-    <!-- Google Fonts - Cairo -->
+    <!-- Preload Critical Images -->
+    <link rel="preload" as="image" href="/logo.png" />
+    
+    <!-- Google Fonts - Cairo (Optimized) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
     
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">

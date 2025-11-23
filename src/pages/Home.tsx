@@ -52,13 +52,16 @@ export const Home = () => {
     return (
         <div
             className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 p-4 relative"
-            style={{
-                backgroundImage: 'url(/home-bg.webp)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-            }}
         >
+            {/* Background Image with Lazy Loading */}
+            <img
+                src="/home-bg.webp"
+                alt=""
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover"
+                aria-hidden="true"
+            />
+
             {/* Overlay for better readability */}
             <div className="absolute inset-0 bg-white/70 dark:bg-gray-900/90 backdrop-blur-sm"></div>
 
@@ -69,6 +72,9 @@ export const Home = () => {
                         <img
                             src="/logo.png"
                             alt="شعار غراس"
+                            fetchPriority="high"
+                            width="128"
+                            height="128"
                             className="h-24 w-24 md:h-32 md:w-32 object-contain drop-shadow-lg"
                         />
                     </div>

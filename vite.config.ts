@@ -17,6 +17,20 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'query-vendor': ['@tanstack/react-query'],
+          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-label', '@radix-ui/react-popover', '@radix-ui/react-select', '@radix-ui/react-slot'],
+          'charts': ['recharts'],
+          'dnd': ['@hello-pangea/dnd'],
+          'date': ['date-fns', 'luxon', 'react-day-picker'],
+          'form': ['react-hook-form', 'zod'],
+        },
+      },
+    },
   },
   server: {
     port: 3000,

@@ -103,6 +103,9 @@ export const AppLayout = () => {
                         <img
                             src="/logo.png"
                             alt="شعار غراس"
+                            loading="lazy"
+                            width="40"
+                            height="40"
                             className="h-10 w-10 object-contain"
                         />
                         <h1 className="text-xl font-bold text-primary">غراس مدير المهام</h1>
