@@ -351,6 +351,51 @@ Contributions are welcome! To get started:
 
 ---
 
+## 🔍 SEO & Performance
+
+### Optimizations Included
+
+✅ **Meta Tags**
+- Comprehensive title and description
+- Open Graph tags for social sharing
+- Twitter Card metadata
+- Keywords and language tags
+
+✅ **PWA Support**
+- Manifest.json for installability
+- Service worker ready
+- Offline-first architecture
+
+✅ **Performance**
+- Image optimization (WebP format)
+- Font preloading (Cairo)
+- Code splitting with Vite
+- Lazy loading components
+- Optimized bundle size
+
+✅ **SEO Files**
+- robots.txt for search engines
+- sitemap.xml for indexing
+- Structured data (JSON-LD)
+- Canonical URLs
+- _headers for security and caching
+
+✅ **Accessibility**
+- ARIA labels throughout
+- Semantic HTML
+- Keyboard navigation
+- Screen reader support
+- High contrast ratios
+
+### Performance Metrics Target
+- First Contentful Paint: < 1.8s
+- Largest Contentful Paint: < 2.5s
+- Time to Interactive: < 3.8s
+- Cumulative Layout Shift: < 0.1
+- First Input Delay: < 100ms
+
+---
+
 ## 📄 License
 
 This project is developed for **Ghras Al-Ilm Academy**.  

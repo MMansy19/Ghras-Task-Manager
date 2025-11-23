@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Disallow admin or private pages if needed
+# Disallow: /app/
+
+# Sitemap
+Sitemap: https://ghras-task-manager.netlify.app/sitemap.xml

@@ -2,7 +2,6 @@ import { Filter, ChevronDown } from 'lucide-react';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { DatePicker } from './ui/date-picker';
 import { Button } from './ui/button';
 import { PRIORITY_LABELS } from '../types';
 
@@ -17,8 +16,6 @@ interface TaskFiltersProps {
     setFilterMinHours: (value: string) => void;
     filterMaxHours: string;
     setFilterMaxHours: (value: string) => void;
-    filterDueDate: string;
-    setFilterDueDate: (value: string) => void;
     users?: any[];
     currentTeam?: any;
     onClearFilters: () => void;
@@ -35,18 +32,15 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
     setFilterMinHours,
     filterMaxHours,
     setFilterMaxHours,
-    filterDueDate,
-    setFilterDueDate,
     users,
     currentTeam,
     onClearFilters,
 }) => {
-    const hasActiveFilters = 
-        filterPriority !== 'all' || 
-        filterAssignee !== 'all' || 
-        filterMinHours || 
-        filterMaxHours || 
-        filterDueDate;
+    const hasActiveFilters =
+        filterPriority !== 'all' ||
+        filterAssignee !== 'all' ||
+        filterMinHours ||
+        filterMaxHours;
 
     return (
         <div className="card mb-6">
@@ -129,16 +123,6 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
                                 placeholder="الحد الأقصى"
                                 value={filterMaxHours}
                                 onChange={(e) => setFilterMaxHours(e.target.value)}
-                            />
-                        </div>
-
-                        {/* Due Date Filter */}
-                        <div>
-                            <Label>تاريخ التسليم</Label>
-                            <DatePicker
-                                value={filterDueDate}
-                                onChange={setFilterDueDate}
-                                placeholder="اختر التاريخ"
                             />
                         </div>
                     </div>

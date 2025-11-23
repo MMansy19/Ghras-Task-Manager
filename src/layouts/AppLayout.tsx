@@ -99,8 +99,15 @@ export const AppLayout = () => {
             >
                 {/* Header */}
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                    <h1 className="text-xl font-bold text-primary mb-1">غراس مدير المهام</h1>
-                    <p className="text-sm text-textSecondary dark:text-textSecondary-dark">
+                    <div className="flex items-center gap-3 mb-2">
+                        <img 
+                            src="/logo.png" 
+                            alt="شعار غراس" 
+                            className="h-10 w-10 object-contain"
+                        />
+                        <h1 className="text-xl font-bold text-primary">غراس مدير المهام</h1>
+                    </div>
+                    <p className="text-sm text-textSecondary dark:text-textSecondary-dark mr-[52px]">
                         {role === 'admin' && 'مدير النظام'}
                         {role === 'supervisor' && 'مسؤول الفريق'}
                         {role === 'volunteer' && 'عضو'}

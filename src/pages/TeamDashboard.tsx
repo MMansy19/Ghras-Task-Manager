@@ -29,7 +29,6 @@ export const TeamDashboard = () => {
     const [filterAssignee, setFilterAssignee] = useState<string>('all');
     const [filterMinHours, setFilterMinHours] = useState<string>('');
     const [filterMaxHours, setFilterMaxHours] = useState<string>('');
-    const [filterDueDate, setFilterDueDate] = useState<string>('');
 
     const { data: teams } = useQuery({
         queryKey: ['teams'],
@@ -133,11 +132,6 @@ export const TeamDashboard = () => {
             filteredTasks = filteredTasks.filter(task => task.work_hours <= parseFloat(filterMaxHours));
         }
 
-        // Apply due date filter
-        if (filterDueDate) {
-            filteredTasks = filteredTasks.filter(task => task.due_date === filterDueDate);
-        }
-
         return filteredTasks;
     };
 
@@ -146,7 +140,6 @@ export const TeamDashboard = () => {
         setFilterAssignee('all');
         setFilterMinHours('');
         setFilterMaxHours('');
-        setFilterDueDate('');
     };
 
     const statuses: TaskStatus[] = ['new', 'scheduled', 'in_progress', 'issue', 'done', 'docs'];
@@ -202,8 +195,6 @@ export const TeamDashboard = () => {
                 setFilterMinHours={setFilterMinHours}
                 filterMaxHours={filterMaxHours}
                 setFilterMaxHours={setFilterMaxHours}
-                filterDueDate={filterDueDate}
-                setFilterDueDate={setFilterDueDate}
                 users={users}
                 currentTeam={currentTeam}
                 onClearFilters={handleClearFilters}

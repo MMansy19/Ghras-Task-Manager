@@ -1,0 +1,5 @@
+# Redirect all requests to index.html for SPA routing
+/*    /index.html   200
+
+# Redirect www to non-www (if needed)
+# https://www.ghras-task-manager.netlify.app/*  https://ghras-task-manager.netlify.app/:splat  301!

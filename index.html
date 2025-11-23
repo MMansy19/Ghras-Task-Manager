@@ -2,9 +2,45 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>غراس مدير المهام</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    
+    <!-- Viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>غراس مدير المهام | نظام إدارة المهام الاحترافي</title>
+    <meta name="title" content="غراس مدير المهام | نظام إدارة المهام الاحترافي" />
+    <meta name="description" content="نظام إدارة المهام الشامل لفرق أكاديمية غراس العلم. تتبع المهام، إدارة الفرق، وتحليل الإنتاجية بسهولة ومرونة." />
+    <meta name="keywords" content="إدارة المهام, غراس, أكاديمية غراس العلم, كانبان, تنظيم المهام, إدارة الفرق, تتبع المشاريع" />
+    <meta name="author" content="أكاديمية غراس العلم" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="Arabic" />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#059669" />
+    <meta name="msapplication-TileColor" content="#059669" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ghras-task-manager.netlify.app/" />
+    <meta property="og:title" content="غراس مدير المهام | نظام إدارة المهام الاحترافي" />
+    <meta property="og:description" content="نظام إدارة المهام الشامل لفرق أكاديمية غراس العلم. تتبع المهام، إدارة الفرق، وتحليل الإنتاجية بسهولة ومرونة." />
+    <meta property="og:image" content="/logo.png" />
+    <meta property="og:locale" content="ar_AR" />
+    <meta property="og:site_name" content="غراس مدير المهام" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://ghras-task-manager.netlify.app/" />
+    <meta property="twitter:title" content="غراس مدير المهام | نظام إدارة المهام الاحترافي" />
+    <meta property="twitter:description" content="نظام إدارة المهام الشامل لفرق أكاديمية غراس العلم. تتبع المهام، إدارة الفرق، وتحليل الإنتاجية بسهولة ومرونة." />
+    <meta property="twitter:image" content="/logo.png" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
     
     <!-- Google Fonts - Cairo -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,8 +50,30 @@
       rel="stylesheet"
     />
     
-    <meta name="description" content="نظام إدارة المهام لفرق أكاديمية غراس العلم" />
-    <meta name="theme-color" content="#059669" />
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "غراس مدير المهام",
+      "alternateName": "Ghras Task Manager",
+      "url": "https://ghras-task-manager.netlify.app/",
+      "description": "نظام إدارة المهام الشامل لفرق أكاديمية غراس العلم. تتبع المهام، إدارة الفرق، وتحليل الإنتاجية بسهولة ومرونة.",
+      "applicationCategory": "ProductivityApplication",
+      "operatingSystem": "All",
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "inLanguage": "ar",
+      "author": {
+        "@type": "Organization",
+        "name": "أكاديمية غراس العلم"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
