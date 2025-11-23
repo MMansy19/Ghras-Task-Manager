@@ -128,7 +128,7 @@ export const UsersManagement = () => {
             {/* Search */}
             <div className="card mb-6">
                 <div className="relative">
-                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <Input
                         type="text"
                         placeholder="البحث عن مستخدم (الاسم أو البريد الإلكتروني)"
@@ -145,33 +145,35 @@ export const UsersManagement = () => {
                     <table className="table" aria-label="جدول المستخدمين">
                         <thead>
                             <tr>
-                                <th>الإجراءات</th>
-                                <th>الحالة</th>
-                                <th>الفرق</th>
-                                <th>الدور</th>
-                                <th>البريد الإلكتروني</th>
                                 <th>الاسم</th>
+                                <th>البريد الإلكتروني</th>
+                                <th>الدور</th>
+                                <th>الفرق</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredUsers.map((user) => (
                                 <tr key={user.id}>
                                     <td>
-                                        <div className="flex gap-2 justify-end">
-                                            <button
-                                                onClick={() => setUserToDelete(user)}
-                                                className="text-sm bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 py-1 px-2 rounded-md flex items-center gap-1 transition-colors"
-                                            >
-                                                <Trash2 className="w-3 h-3" />
-                                                حذف
-                                            </button>
-                                            <button
-                                                onClick={() => setEditingUser(user)}
-                                                className="text-sm btn-secondary py-1 px-2 flex items-center gap-1"
-                                            >
-                                                <Edit2 className="w-3 h-3" />
-                                                تعديل
-                                            </button>
+                                        <span className="font-semibold">{user.name}</span>
+                                    </td>
+                                    <td>
+                                        <span className="text-sm text-textSecondary dark:text-textSecondary-dark">
+                                            {user.email}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span className="font-medium">{ROLE_LABELS[user.role]}</span>
+                                    </td>
+                                    <td>
+                                        <div className="flex gap-1 flex-wrap justify-start">
+                                            {user.teams.map((teamId) => (
+                                                <span key={teamId} className="badge bg-primary/20 text-primary">
+                                                    {teamId}
+                                                </span>
+                                            ))}
                                         </div>
                                     </td>
                                     <td>
@@ -186,24 +188,22 @@ export const UsersManagement = () => {
                                         </button>
                                     </td>
                                     <td>
-                                        <div className="flex gap-1 flex-wrap justify-end">
-                                            {user.teams.map((teamId) => (
-                                                <span key={teamId} className="badge bg-primary/20 text-primary">
-                                                    {teamId}
-                                                </span>
-                                            ))}
+                                        <div className="flex gap-2 justify-start">
+                                            <button
+                                                onClick={() => setEditingUser(user)}
+                                                className="text-sm btn-secondary py-1 px-2 flex items-center gap-1"
+                                            >
+                                                <Edit2 className="w-3 h-3" />
+                                                تعديل
+                                            </button>
+                                            <button
+                                                onClick={() => setUserToDelete(user)}
+                                                className="text-sm bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 py-1 px-2 rounded-md flex items-center gap-1 transition-colors"
+                                            >
+                                                <Trash2 className="w-3 h-3" />
+                                                حذف
+                                            </button>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <span className="font-medium">{ROLE_LABELS[user.role]}</span>
-                                    </td>
-                                    <td>
-                                        <span className="text-sm text-textSecondary dark:text-textSecondary-dark">
-                                            {user.email}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className="font-semibold">{user.name}</span>
                                     </td>
                                 </tr>
                             ))}
