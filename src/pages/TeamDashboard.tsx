@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
@@ -11,6 +11,7 @@ import { EmptyState } from '../components/EmptyState';
 import { Modal } from '../components/Modal';
 import { useRole } from '../hooks/useRole';
 import { DateTime } from 'luxon';
+import { AlertTriangle, Plus, Edit2, Trash2, Clock } from 'lucide-react';
 
 export const TeamDashboard = () => {
     const { teamSlug } = useParams<{ teamSlug: string }>();
@@ -120,7 +121,7 @@ export const TeamDashboard = () => {
     if (error) {
         return (
             <EmptyState
-                icon="⚠️"
+                icon={<AlertTriangle className="w-16 h-16 text-red-500" />}
                 title="خطأ في تحميل المهام"
                 description="حدث خطأ أثناء تحميل المهام. يرجى المحاولة مرة أخرى."
                 action={{ label: 'إعادة المحاولة', onClick: () => window.location.reload() }}
@@ -133,14 +134,13 @@ export const TeamDashboard = () => {
             {/* Header */}
             <div className="mb-6 flex flex-col sm:flex-row-reverse items-start sm:items-center justify-between gap-4">
                 <div>
-                    {isAdminOrSupervisor && (
-                        <button
-                            onClick={() => setIsCreateModalOpen(true)}
-                            className="btn-primary"
-                        >
-                            ➕ إضافة مهمة جديدة
-                        </button>
-                    )}
+                    <button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="btn-primary flex items-center gap-2"
+                    >
+                        <Plus className="w-5 h-5" />
+                        إضافة مهمة جديدة
+                    </button>
                 </div>
                 <div>
                     <h1 className="text-3xl font-bold mb-1">{currentTeam?.name}</h1>
@@ -224,6 +224,7 @@ export const TeamDashboard = () => {
                 teamId={currentTeam?.id}
                 users={users}
                 currentTeam={currentTeam}
+                role={role}
                 onSubmit={(data) => {
                     if (editingTask) {
                         updateTaskMutation.mutate({ id: editingTask.id, data });
@@ -261,19 +262,19 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
                         {onEdit && (
                             <button
                                 onClick={onEdit}
-                                className="text-gray-500 hover:text-primary transition-colors"
+                                className="text-gray-500 hover:text-primary transition-colors p-1"
                                 aria-label="تعديل"
                             >
-                                ✏️
+                                <Edit2 className="w-4 h-4" />
                             </button>
                         )}
                         {onDelete && (
                             <button
                                 onClick={onDelete}
-                                className="text-gray-500 hover:text-red-600 transition-colors"
+                                className="text-gray-500 hover:text-red-600 transition-colors p-1"
                                 aria-label="حذف"
                             >
-                                🗑️
+                                <Trash2 className="w-4 h-4" />
                             </button>
                         )}
                     </div>
@@ -301,7 +302,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
 
             {task.work_hours > 0 && (
                 <div className="flex items-center gap-1 text-xs text-textSecondary dark:text-textSecondary-dark">
-                    <span>⏱️</span>
+                    <Clock className="w-3 h-3" />
                     <span>{task.work_hours} ساعة</span>
                 </div>
             )}
@@ -326,6 +327,7 @@ interface TaskFormModalProps {
     onSubmit: (data: any) => void;
     users?: any[];
     currentTeam?: any;
+    role: string | null;
 }
 
 const TaskFormModal: React.FC<TaskFormModalProps> = ({
@@ -336,15 +338,44 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
     onSubmit,
     users,
     currentTeam,
+    role,
 }) => {
+    // For volunteers, we simulate getting the current user ID (in a real app, this would come from auth)
+    // Using user ID 3 (يوسف علي) as the demo volunteer user
+    const currentUserId = role === 'volunteer' ? 3 : null;
+
     const [formData, setFormData] = useState({
-        title: task?.title || '',
-        description: task?.description || '',
-        priority: task?.priority || 'normal',
-        due_date: task?.due_date || '',
-        assignee_id: task?.assignee_id || '',
-        work_hours: task?.work_hours || 0,
+        title: '',
+        description: '',
+        priority: 'normal' as TaskPriority,
+        due_date: '',
+        assignee_id: '' as string | number,
+        work_hours: 0,
     });
+
+    // Update form data when task prop changes
+    useEffect(() => {
+        if (task) {
+            setFormData({
+                title: task.title || '',
+                description: task.description || '',
+                priority: task.priority || 'normal',
+                due_date: task.due_date || '',
+                assignee_id: task.assignee_id || '',
+                work_hours: task.work_hours || 0,
+            });
+        } else {
+            // For volunteers creating new tasks, auto-assign to themselves
+            setFormData({
+                title: '',
+                description: '',
+                priority: 'normal',
+                due_date: '',
+                assignee_id: role === 'volunteer' && currentUserId ? currentUserId : '',
+                work_hours: 0,
+            });
+        }
+    }, [task, isOpen, role, currentUserId]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -392,7 +423,7 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
                         <select
                             id="priority"
                             value={formData.priority}
-                            onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
+                            onChange={(e) => setFormData({ ...formData, priority: e.target.value as TaskPriority })}
                         >
                             {Object.entries(PRIORITY_LABELS).map(([value, label]) => (
                                 <option key={value} value={value}>
@@ -414,21 +445,42 @@ const TaskFormModal: React.FC<TaskFormModalProps> = ({
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label htmlFor="assignee_id">تعيين إلى</label>
-                        <select
-                            id="assignee_id"
-                            value={formData.assignee_id || ''}
-                            onChange={(e) => setFormData({ ...formData, assignee_id: e.target.value })}
-                        >
-                            <option value="">اختر المستخدم</option>
-                            {users?.filter(u => u.status && currentTeam && u.teams.includes(currentTeam.id)).map((user) => (
-                                <option key={user.id} value={user.id}>
-                                    {user.name} ({user.telegram_id})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    {role === 'volunteer' ? (
+                        <div>
+                            <label htmlFor="assignee_id">تعيين إلى</label>
+                            <select
+                                id="assignee_id"
+                                value={formData.assignee_id || ''}
+                                disabled
+                                className="bg-gray-100 dark:bg-gray-700 cursor-not-allowed"
+                            >
+                                {users?.filter(u => u.id === currentUserId).map((user) => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name} (أنت)
+                                    </option>
+                                ))}
+                            </select>
+                            <p className="text-xs text-textSecondary dark:text-textSecondary-dark mt-1">
+                                الأعضاء يمكنهم إنشاء مهام لأنفسهم فقط
+                            </p>
+                        </div>
+                    ) : (
+                        <div>
+                            <label htmlFor="assignee_id">تعيين إلى</label>
+                            <select
+                                id="assignee_id"
+                                value={formData.assignee_id || ''}
+                                onChange={(e) => setFormData({ ...formData, assignee_id: e.target.value })}
+                            >
+                                <option value="">غير معيّن</option>
+                                {users?.filter(u => u.status && currentTeam && u.teams.includes(currentTeam.id)).map((user) => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name} ({user.telegram_id})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     <div>
                         <label htmlFor="work_hours">ساعات العمل</label>

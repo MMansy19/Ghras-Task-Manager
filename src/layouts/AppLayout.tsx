@@ -6,6 +6,7 @@ import { useDarkMode } from '../hooks/useDarkMode';
 import { fetchTeams } from '../api/mockApi';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useEffect, useState } from 'react';
+import { AlertTriangle, Moon, Sun, Users, BarChart3, LogOut } from 'lucide-react';
 
 export const AppLayout = () => {
     const navigate = useNavigate();
@@ -55,7 +56,9 @@ export const AppLayout = () => {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="card max-w-md text-center">
-                    <div className="text-6xl mb-4">⚠️</div>
+                    <div className="flex justify-center mb-4">
+                        <AlertTriangle className="w-16 h-16 text-red-500" />
+                    </div>
                     <h2 className="text-xl font-bold mb-2">خطأ في تحميل البيانات</h2>
                     <p className="text-textSecondary dark:text-textSecondary-dark mb-4">
                         {error instanceof Error ? error.message : 'حدث خطأ غير متوقع'}
@@ -100,7 +103,7 @@ export const AppLayout = () => {
                     <p className="text-sm text-textSecondary dark:text-textSecondary-dark">
                         {role === 'admin' && 'مدير النظام'}
                         {role === 'supervisor' && 'مسؤول الفريق'}
-                        {role === 'volunteer' && 'متطوع'}
+                        {role === 'volunteer' && 'عضو'}
                     </p>
                 </div>
 
@@ -111,7 +114,7 @@ export const AppLayout = () => {
                         className="w-full flex items-center justify-between px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         aria-label="تبديل الوضع الليلي"
                     >
-                        <span>{isDark ? '🌙' : '☀️'}</span>
+                        {isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                         <span className="text-sm">
                             {isDark ? 'الوضع الليلي' : 'الوضع النهاري'}
                         </span>
@@ -159,7 +162,7 @@ export const AppLayout = () => {
                                     }
                                     onClick={() => setSidebarOpen(false)}
                                 >
-                                    <span>👥</span>
+                                    <Users className="w-5 h-5" />
                                     <span className="flex-1">إدارة المستخدمين</span>
                                 </Link>
                                 <Link
@@ -171,7 +174,7 @@ export const AppLayout = () => {
                                     }
                                     onClick={() => setSidebarOpen(false)}
                                 >
-                                    <span>📊</span>
+                                    <BarChart3 className="w-5 h-5" />
                                     <span className="flex-1">الإحصائيات</span>
                                 </Link>
                             </nav>
@@ -185,7 +188,7 @@ export const AppLayout = () => {
                         onClick={handleLogout}
                         className="w-full btn-danger flex items-center justify-center gap-2"
                     >
-                        <span>🚪</span>
+                        <LogOut className="w-5 h-5" />
                         <span>تسجيل الخروج</span>
                     </button>
                 </div>

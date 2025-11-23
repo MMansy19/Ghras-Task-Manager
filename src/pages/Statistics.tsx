@@ -8,6 +8,7 @@ import { EmptyState } from '../components/EmptyState';
 import { useRole } from '../hooks/useRole';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { AlertTriangle, BarChart3, ClipboardList, CheckCircle, Clock } from 'lucide-react';
 
 export const Statistics = () => {
     const { role } = useRole();
@@ -31,7 +32,7 @@ export const Statistics = () => {
     if (error) {
         return (
             <EmptyState
-                icon="⚠️"
+                icon={<AlertTriangle className="w-16 h-16 text-red-500" />}
                 title="خطأ في تحميل الإحصائيات"
                 description="حدث خطأ أثناء تحميل الإحصائيات. يرجى المحاولة مرة أخرى."
                 action={{ label: 'إعادة المحاولة', onClick: () => window.location.reload() }}
@@ -42,7 +43,7 @@ export const Statistics = () => {
     if (!stats) {
         return (
             <EmptyState
-                icon="📊"
+                icon={<BarChart3 className="w-16 h-16 text-gray-400" />}
                 title="لا توجد بيانات"
                 description="لا توجد إحصائيات متاحة حاليًا."
             />
@@ -138,7 +139,7 @@ export const Statistics = () => {
 
             {/* Member Performance */}
             <div className="card">
-                <h2 className="text-xl font-bold mb-4">أداء المتطوعين</h2>
+                <h2 className="text-xl font-bold mb-4">أداء الأعضاء</h2>
                 <div className="overflow-x-auto">
                     {stats.member_performance && stats.member_performance.length > 0 ? (
                         <table className="table">
@@ -175,9 +176,9 @@ export const Statistics = () => {
                         </table>
                     ) : (
                         <EmptyState
-                            icon="📊"
+                            icon={<BarChart3 className="w-16 h-16 text-gray-400" />}
                             title="لا توجد بيانات"
-                            description="لا توجد بيانات أداء للمتطوعين حاليًا."
+                            description="لا توجد بيانات أداء للأعضاء حاليًا."
                         />
                     )}
                 </div>
@@ -186,7 +187,9 @@ export const Statistics = () => {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                 <div className="card text-center">
-                    <div className="text-4xl mb-2">📋</div>
+                    <div className="flex justify-center mb-2">
+                        <ClipboardList className="w-10 h-10 text-primary" />
+                    </div>
                     <div className="text-3xl font-bold text-primary mb-1">
                         {Object.values(stats.tasks_distribution).reduce((a, b) => a + b, 0)}
                     </div>
@@ -196,7 +199,9 @@ export const Statistics = () => {
                 </div>
 
                 <div className="card text-center">
-                    <div className="text-4xl mb-2">✅</div>
+                    <div className="flex justify-center mb-2">
+                        <CheckCircle className="w-10 h-10 text-green-600" />
+                    </div>
                     <div className="text-3xl font-bold text-green-600 mb-1">
                         {stats.tasks_distribution.done || 0}
                     </div>
@@ -206,7 +211,9 @@ export const Statistics = () => {
                 </div>
 
                 <div className="card text-center">
-                    <div className="text-4xl mb-2">⏱️</div>
+                    <div className="flex justify-center mb-2">
+                        <Clock className="w-10 h-10 text-amber-600" />
+                    </div>
                     <div className="text-3xl font-bold text-amber-600 mb-1">
                         {stats.member_performance
                             .reduce((sum, member) => sum + member.total_hours, 0)

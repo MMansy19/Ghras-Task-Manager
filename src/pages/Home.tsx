@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRole } from '../hooks/useRole';
 import { UserRole, ROLE_LABELS } from '../types';
 import { useEffect, useRef } from 'react';
+import { ShieldCheck, UserCheck, UserCog, Info } from 'lucide-react';
 
 export const Home = () => {
     const navigate = useNavigate();
@@ -30,20 +31,20 @@ export const Home = () => {
         }, 10);
     };
 
-    const roles: { role: UserRole; icon: string; description: string }[] = [
+    const roles: { role: UserRole; icon: typeof ShieldCheck; description: string }[] = [
         {
             role: 'admin',
-            icon: '👨‍💼',
+            icon: ShieldCheck,
             description: 'إدارة كاملة للنظام والمستخدمين',
         },
         {
             role: 'supervisor',
-            icon: '👨‍🏫',
+            icon: UserCog,
             description: 'إدارة المهام والمستخدمين',
         },
         {
             role: 'volunteer',
-            icon: '🙋‍♂️',
+            icon: UserCheck,
             description: 'إدارة المهام الخاصة',
         },
     ];
@@ -65,13 +66,15 @@ export const Home = () => {
                         اختر دورك للمتابعة
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {roles.map(({ role, icon, description }) => (
+                        {roles.map(({ role, icon: Icon, description }) => (
                             <button
                                 key={role}
                                 onClick={() => handleRoleSelect(role)}
                                 className="card-hover text-center p-6 group transition-all"
                             >
-                                <div className="text-5xl mb-3">{icon}</div>
+                                <div className="mb-3 flex justify-center">
+                                    <Icon className="w-16 h-16 text-primary group-hover:text-primary-dark transition-colors" />
+                                </div>
                                 <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
                                     {ROLE_LABELS[role]}
                                 </h3>
@@ -84,8 +87,9 @@ export const Home = () => {
                 </div>
 
                 <div className="text-center text-sm text-textSecondary dark:text-textSecondary-dark">
-                    <p>
-                        💡 هذا نظام تجريبي يستخدم بيانات وهمية لأغراض التطوير
+                    <p className="flex items-center justify-center gap-2">
+                        <Info className="w-4 h-4" />
+                        هذا نظام تجريبي يستخدم بيانات وهمية لأغراض التطوير
                     </p>
                 </div>
             </div>

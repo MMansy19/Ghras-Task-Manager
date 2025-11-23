@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { fetchUsers, createUser, updateUser } from '../api/mockApi';
+import { fetchUsers, createUser, updateUser, fetchTeams } from '../api/mockApi';
 import { User, ROLE_LABELS } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { EmptyState } from '../components/EmptyState';
@@ -10,6 +10,7 @@ import { Modal } from '../components/Modal';
 import { useRole } from '../hooks/useRole';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { AlertTriangle, Plus, Edit2, Search, Users } from 'lucide-react';
 
 export const UsersManagement = () => {
     const { role } = useRole();
@@ -28,6 +29,11 @@ export const UsersManagement = () => {
     const { data: users, isLoading, error } = useQuery({
         queryKey: ['users'],
         queryFn: fetchUsers,
+    });
+
+    const { data: teams } = useQuery({
+        queryKey: ['teams'],
+        queryFn: fetchTeams,
     });
 
     const createUserMutation = useMutation({
@@ -75,7 +81,7 @@ export const UsersManagement = () => {
     if (error) {
         return (
             <EmptyState
-                icon="⚠️"
+                icon={<AlertTriangle className="w-16 h-16 text-red-500" />}
                 title="خطأ في تحميل المستخدمين"
                 description="حدث خطأ أثناء تحميل المستخدمين. يرجى المحاولة مرة أخرى."
                 action={{ label: 'إعادة المحاولة', onClick: () => window.location.reload() }}
@@ -89,9 +95,10 @@ export const UsersManagement = () => {
             <div className="mb-6 flex flex-col sm:flex-row-reverse items-start sm:items-center justify-between gap-4">
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="btn-primary"
+                    className="btn-primary flex items-center gap-2"
                 >
-                    ➕ إضافة مستخدم
+                    <Plus className="w-5 h-5" />
+                    إضافة مستخدم
                 </button>
                 <div>
                     <h1 className="text-3xl font-bold mb-1">إدارة المستخدمين</h1>
@@ -103,13 +110,16 @@ export const UsersManagement = () => {
 
             {/* Search */}
             <div className="card mb-6">
-                <input
-                    type="text"
-                    placeholder="🔍 البحث عن مستخدم (الاسم أو البريد الإلكتروني)"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full"
-                />
+                <div className="relative">
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                        type="text"
+                        placeholder="البحث عن مستخدم (الاسم أو البريد الإلكتروني)"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pr-10"
+                    />
+                </div>
             </div>
 
             {/* Users Table */}
@@ -133,9 +143,10 @@ export const UsersManagement = () => {
                                         <div className="flex gap-2 justify-end">
                                             <button
                                                 onClick={() => setEditingUser(user)}
-                                                className="text-sm btn-secondary py-1 px-2"
+                                                className="text-sm btn-secondary py-1 px-2 flex items-center gap-1"
                                             >
-                                                ✏️ تعديل
+                                                <Edit2 className="w-3 h-3" />
+                                                تعديل
                                             </button>
                                         </div>
                                     </td>
@@ -143,8 +154,8 @@ export const UsersManagement = () => {
                                         <button
                                             onClick={() => toggleUserStatus(user)}
                                             className={`badge ${user.status
-                                                    ? 'badge-status-done'
-                                                    : 'badge-status-issue'
+                                                ? 'badge-status-done'
+                                                : 'badge-status-issue'
                                                 }`}
                                         >
                                             {user.status ? 'نشط' : 'معطل'}
@@ -176,7 +187,7 @@ export const UsersManagement = () => {
                     </table>
                 ) : (
                     <EmptyState
-                        icon="👥"
+                        icon={<Users className="w-16 h-16 text-gray-400" />}
                         title="لا يوجد مستخدمون"
                         description="لم يتم العثور على مستخدمين. جرب البحث بكلمات أخرى."
                     />
@@ -191,6 +202,7 @@ export const UsersManagement = () => {
                     setEditingUser(null);
                 }}
                 user={editingUser}
+                teams={teams}
                 onSubmit={(data) => {
                     if (editingUser) {
                         updateUserMutation.mutate({ id: editingUser.id, data });
@@ -208,6 +220,7 @@ interface UserFormModalProps {
     isOpen: boolean;
     onClose: () => void;
     user: User | null;
+    teams?: any[];
     onSubmit: (data: any) => void;
 }
 
@@ -215,20 +228,63 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
     isOpen,
     onClose,
     user,
+    teams,
     onSubmit,
 }) => {
-    const [formData, setFormData] = useState({
-        name: user?.name || '',
-        email: user?.email || '',
+    const [formData, setFormData] = useState<{
+        name: string;
+        email: string;
+        password: string;
+        password_confirmation: string;
+        role: 'admin' | 'supervisor' | 'volunteer';
+        status: boolean;
+        telegram_id: string;
+        job_title: string;
+        weekly_hours: number;
+        teams: number[];
+    }>({
+        name: '',
+        email: '',
         password: '',
         password_confirmation: '',
-        role: user?.role || 'volunteer',
-        status: user?.status ?? true,
-        telegram_id: user?.telegram_id || '',
-        job_title: user?.job_title || '',
-        weekly_hours: user?.weekly_hours || 0,
-        teams: user?.teams || [],
+        role: 'volunteer',
+        status: true,
+        telegram_id: '',
+        job_title: '',
+        weekly_hours: 0,
+        teams: [],
     });
+
+    // Update form data when user prop changes
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                name: user.name || '',
+                email: user.email || '',
+                password: '',
+                password_confirmation: '',
+                role: user.role || 'volunteer',
+                status: user.status ?? true,
+                telegram_id: user.telegram_id || '',
+                job_title: user.job_title || '',
+                weekly_hours: user.weekly_hours || 0,
+                teams: user.teams || [],
+            });
+        } else {
+            setFormData({
+                name: '',
+                email: '',
+                password: '',
+                password_confirmation: '',
+                role: 'volunteer',
+                status: true,
+                telegram_id: '',
+                job_title: '',
+                weekly_hours: 0,
+                teams: [],
+            });
+        }
+    }, [user, isOpen]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -398,14 +454,14 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                 <div>
                     <label>الفرق</label>
                     <div className="flex flex-wrap gap-2 mt-2">
-                        {[1, 2, 3, 4, 5].map((teamId) => (
-                            <label key={teamId} className="flex items-center gap-2 cursor-pointer">
+                        {teams?.map((team) => (
+                            <label key={team.id} className="flex items-center gap-2 cursor-pointer">
                                 <input
                                     type="checkbox"
-                                    checked={formData.teams.includes(teamId)}
-                                    onChange={() => handleTeamsChange(teamId)}
+                                    checked={formData.teams.includes(team.id)}
+                                    onChange={() => handleTeamsChange(team.id)}
                                 />
-                                <span className="text-sm">فريق {teamId}</span>
+                                <span className="text-sm">{team.name}</span>
                             </label>
                         ))}
                     </div>

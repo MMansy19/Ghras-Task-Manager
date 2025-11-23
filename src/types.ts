@@ -159,7 +159,7 @@ export const PRIORITY_LABELS: Record<TaskPriority, string> = {
 export const ROLE_LABELS: Record<UserRole, string> = {
   admin: 'مدير',
   supervisor: 'مسؤول',
-  volunteer: 'متطوع',
+  volunteer: 'عضو',
 };
 
 // Status colors mapping
