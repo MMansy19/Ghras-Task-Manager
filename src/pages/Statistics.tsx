@@ -207,16 +207,6 @@ export const Statistics = () => {
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                             </Pie>
-                            <Tooltip
-                                contentStyle={{
-                                    direction: 'rtl',
-                                    textAlign: 'right',
-                                    fontFamily: 'Cairo, sans-serif',
-                                    backgroundColor: 'hsl(var(--card))',
-                                    border: '1px solid hsl(var(--border))',
-                                    borderRadius: '8px',
-                                }}
-                            />
                             <Legend
                                 wrapperStyle={{
                                     direction: 'rtl',
@@ -225,7 +215,7 @@ export const Statistics = () => {
                                     paddingTop: '10px',
                                 }}
                                 iconType="circle"
-                                formatter={(value) => <span style={{ marginRight: '8px' }}>{value}</span>}
+                                formatter={(value) => <span style={{ marginRight: '4px' }}>{value}</span>}
                             />
                         </PieChart>
                     </ResponsiveContainer>
@@ -250,7 +240,9 @@ export const Statistics = () => {
                         >
                             <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                             <XAxis type="number" />
-                            <YAxis dataKey="team" type="category" width={80} />
+                            <YAxis dataKey="team" type="category" width={80}
+                                textAnchor="start"
+                            />
                             <Tooltip
                                 contentStyle={{
                                     direction: 'rtl',
@@ -268,8 +260,8 @@ export const Statistics = () => {
                                     fontFamily: 'Cairo, sans-serif',
                                     paddingTop: '10px',
                                 }}
-                                iconType="rect"
-                                formatter={(value) => <span style={{ marginLeft: '8px' }}>{value}</span>}
+                                iconType="circle"
+                                formatter={(value) => <span style={{ marginRight: '4px' }}>{value}</span>}
                             />
                             <Bar dataKey="completed" fill="#16a34a" name="المهام المنجزة" radius={[0, 4, 4, 0]} />
                             <Bar dataKey="total" fill="#94a3b8" name="إجمالي المهام" radius={[0, 4, 4, 0]} />
@@ -346,20 +338,21 @@ export const Statistics = () => {
                             <Legend
                                 iconSize={10}
                                 layout="vertical"
-                                verticalAlign="middle"
+                                verticalAlign="bottom"
                                 align="left"
                                 wrapperStyle={{
-                                    direction: 'rtl',
+                                    direction: 'ltr',
                                     textAlign: 'right',
                                     fontFamily: 'Cairo, sans-serif',
                                     fontSize: '12px',
                                     paddingRight: '20px',
                                 }}
-                                formatter={(value) => <span style={{ marginLeft: '8px' }}>{value}</span>}
+                                iconType="circle"
+                                formatter={(value) => <span style={{ marginRight: '4px' }}>{value}</span>}
                             />
                             <Tooltip
                                 contentStyle={{
-                                    direction: 'rtl',
+                                    direction: 'ltr',
                                     textAlign: 'right',
                                     fontFamily: 'Cairo, sans-serif',
                                     backgroundColor: 'hsl(var(--card))',
@@ -390,10 +383,12 @@ export const Statistics = () => {
                                 dataKey="team"
                                 tick={{ fontSize: 12 }}
                                 angle={-15}
-                                textAnchor="end"
+                                textAnchor="start"
                                 height={60}
                             />
                             <YAxis
+                                textAnchor="start"
+
                                 domain={[0, 100]}
                                 tick={{ fontSize: 12 }}
                                 label={{ value: '%', angle: -90, position: 'insideLeft' }}
@@ -447,10 +442,12 @@ export const Statistics = () => {
                                 dataKey="name"
                                 tick={{ fontSize: 12 }}
                                 angle={-15}
-                                textAnchor="end"
+                                textAnchor="start"
                                 height={60}
                             />
-                            <YAxis tick={{ fontSize: 12 }} />
+                            <YAxis tick={{ fontSize: 12 }}
+                                textAnchor="start"
+                            />
                             <Tooltip
                                 contentStyle={{
                                     direction: 'rtl',
@@ -465,6 +462,7 @@ export const Statistics = () => {
                                     name === 'hours' ? 'الساعات' : 'المهام'
                                 ]}
                             />
+
                             <Area
                                 type="monotone"
                                 dataKey="hours"
@@ -495,11 +493,15 @@ export const Statistics = () => {
                                 dataKey="name"
                                 tick={{ fontSize: 12 }}
                                 angle={-15}
-                                textAnchor="end"
+                                textAnchor="start"
                                 height={60}
                             />
-                            <YAxis yAxisId="left" orientation="left" tick={{ fontSize: 12 }} />
-                            <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} />
+                            <YAxis yAxisId="left"
+                                textAnchor="start"
+                                orientation="left" tick={{ fontSize: 12 }} />
+                            <YAxis yAxisId="right"
+                                textAnchor="end"
+                                orientation="right" tick={{ fontSize: 12 }} />
                             <Tooltip
                                 contentStyle={{
                                     direction: 'rtl',
@@ -517,8 +519,8 @@ export const Statistics = () => {
                                     fontFamily: 'Cairo, sans-serif',
                                     paddingTop: '10px',
                                 }}
-                                iconType="rect"
-                                formatter={(value) => <span style={{ marginLeft: '8px' }}>{value}</span>}
+                                iconType="circle"
+                                formatter={(value) => <span style={{ marginRight: '4px' }}>{value}</span>}
                             />
                             <Bar yAxisId="left" dataKey="tasks" fill="#6366f1" name="المهام" radius={[4, 4, 0, 0]} />
                             <Bar yAxisId="right" dataKey="hours" fill="#ec4899" name="الساعات" radius={[4, 4, 0, 0]} />

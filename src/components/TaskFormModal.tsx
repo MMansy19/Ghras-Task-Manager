@@ -99,8 +99,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
         >
             <form onSubmit={handleSubmit} className="space-y-4">
                 {isVolunteerEditing && (
-                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
-                        <p className="text-sm text-green-800 dark:text-green-200">
+                    <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg p-4 mb-4">
+                        <p className="text-sm text-primary-800 dark:text-primary-200">
                             يمكن للأعضاء تحديث ساعات العمل فقط. للتعديلات الأخرى، يرجى التواصل مع المشرف أو المدير.
                         </p>
                     </div>
