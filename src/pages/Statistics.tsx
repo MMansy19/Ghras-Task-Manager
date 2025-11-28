@@ -198,7 +198,7 @@ export const Statistics = () => {
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
-                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                label={false}
                                 outerRadius={100}
                                 fill="#8884d8"
                                 dataKey="value"
@@ -216,6 +216,16 @@ export const Statistics = () => {
                                 }}
                                 iconType="circle"
                                 formatter={(value) => <span style={{ marginRight: '4px' }}>{value}</span>}
+                            />
+                            <Tooltip
+                                contentStyle={{
+                                    direction: 'rtl',
+                                    textAlign: 'right',
+                                    fontFamily: 'Cairo, sans-serif',
+                                    backgroundColor: 'hsl(var(--card))',
+                                    border: '1px solid hsl(var(--border))',
+                                    borderRadius: '8px',
+                                }}
                             />
                         </PieChart>
                     </ResponsiveContainer>
