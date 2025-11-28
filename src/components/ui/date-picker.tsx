@@ -50,7 +50,7 @@ export function DatePicker({ value, onChange, placeholder = "اختر التار
                 <Button
                     variant={"outline"}
                     className={cn(
-                        "w-full justify-between text-right font-normal",
+                        "w-full justify-between text-right font-normal border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900",
                         !date && "text-textSecondary dark:text-textSecondary-dark",
                         className
                     )}
@@ -64,12 +64,15 @@ export function DatePicker({ value, onChange, placeholder = "اختر التار
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={handleSelect}
-                    initialFocus
-                />
+                <div className="min-h-[320px]">
+                    <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={handleSelect}
+                        initialFocus
+                        fixedWeeks
+                    />
+                </div>
             </PopoverContent>
         </Popover>
     )

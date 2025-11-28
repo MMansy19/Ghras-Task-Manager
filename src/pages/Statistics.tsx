@@ -112,7 +112,7 @@ export const Statistics = () => {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 mb-2">
                 <h1 className="text-3xl font-bold tracking-tight">الإحصائيات</h1>
                 <p className="text-textSecondary dark:text-textSecondary-dark">
                     تقارير شاملة عن أداء الفرق والأعضاء
@@ -182,8 +182,8 @@ export const Statistics = () => {
             <div className="grid gap-6 md:grid-cols-2">
                 {/* Tasks Distribution - Pie Chart */}
                 <div className="card hover:shadow-lg transition-shadow">
-                    <div className="mb-4">
-                        <h2 className="text-xl font-bold flex items-center gap-2 mb-1">
+                    <div className="mb-6">
+                        <h2 className="text-xl font-bold flex items-center gap-3 mb-2">
                             <PieChartIcon className="h-5 w-5 text-primary" />
                             توزيع المهام حسب الحالة
                         </h2>
@@ -222,7 +222,10 @@ export const Statistics = () => {
                                     direction: 'rtl',
                                     textAlign: 'right',
                                     fontFamily: 'Cairo, sans-serif',
+                                    paddingTop: '10px',
                                 }}
+                                iconType="circle"
+                                formatter={(value) => <span style={{ marginRight: '8px' }}>{value}</span>}
                             />
                         </PieChart>
                     </ResponsiveContainer>
@@ -230,8 +233,8 @@ export const Statistics = () => {
 
                 {/* Team Performance - Bar Chart */}
                 <div className="card hover:shadow-lg transition-shadow">
-                    <div className="mb-4">
-                        <h2 className="text-xl font-bold flex items-center gap-2 mb-1">
+                    <div className="mb-6">
+                        <h2 className="text-xl font-bold flex items-center gap-3 mb-2">
                             <BarChart3 className="h-5 w-5 text-green-600" />
                             أداء الفرق
                         </h2>
@@ -263,7 +266,10 @@ export const Statistics = () => {
                                     direction: 'rtl',
                                     textAlign: 'right',
                                     fontFamily: 'Cairo, sans-serif',
+                                    paddingTop: '10px',
                                 }}
+                                iconType="rect"
+                                formatter={(value) => <span style={{ marginLeft: '8px' }}>{value}</span>}
                             />
                             <Bar dataKey="completed" fill="#16a34a" name="المهام المنجزة" radius={[0, 4, 4, 0]} />
                             <Bar dataKey="total" fill="#94a3b8" name="إجمالي المهام" radius={[0, 4, 4, 0]} />
@@ -276,8 +282,8 @@ export const Statistics = () => {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {/* Completion Rate - Radial Progress */}
                 <div className="card hover:shadow-lg transition-shadow">
-                    <div className="mb-4">
-                        <h2 className="text-xl font-bold flex items-center gap-2 mb-1">
+                    <div className="mb-6">
+                        <h2 className="text-xl font-bold flex items-center gap-3 mb-2">
                             <Target className="h-5 w-5 text-blue-600" />
                             معدل الإنجاز الإجمالي
                         </h2>
@@ -313,8 +319,8 @@ export const Statistics = () => {
 
                 {/* Top Performers - Radial Bar Chart */}
                 <div className="card hover:shadow-lg transition-shadow">
-                    <div className="mb-4">
-                        <h2 className="text-xl font-bold flex items-center gap-2 mb-1">
+                    <div className="mb-6">
+                        <h2 className="text-xl font-bold flex items-center gap-3 mb-2">
                             <Award className="h-5 w-5 text-amber-600" />
                             أفضل 5 أعضاء
                         </h2>
@@ -347,7 +353,9 @@ export const Statistics = () => {
                                     textAlign: 'right',
                                     fontFamily: 'Cairo, sans-serif',
                                     fontSize: '12px',
+                                    paddingRight: '20px',
                                 }}
+                                formatter={(value) => <span style={{ marginLeft: '8px' }}>{value}</span>}
                             />
                             <Tooltip
                                 contentStyle={{
@@ -366,8 +374,8 @@ export const Statistics = () => {
 
                 {/* Team Efficiency - Line Chart */}
                 <div className="card hover:shadow-lg transition-shadow">
-                    <div className="mb-4">
-                        <h2 className="text-xl font-bold flex items-center gap-2 mb-1">
+                    <div className="mb-6">
+                        <h2 className="text-xl font-bold flex items-center gap-3 mb-2">
                             <TrendingUp className="h-5 w-5 text-purple-600" />
                             كفاءة الفرق
                         </h2>
@@ -417,8 +425,8 @@ export const Statistics = () => {
             {/* Hours Distribution - Area Chart */}
             <div className="grid gap-6 md:grid-cols-2">
                 <div className="card hover:shadow-lg transition-shadow">
-                    <div className="mb-4">
-                        <h2 className="text-xl font-bold flex items-center gap-2 mb-1">
+                    <div className="mb-6">
+                        <h2 className="text-xl font-bold flex items-center gap-3 mb-2">
                             <Clock className="h-5 w-5 text-amber-600" />
                             توزيع ساعات العمل
                         </h2>
@@ -471,8 +479,8 @@ export const Statistics = () => {
 
                 {/* Workload Balance - Scatter Bar Chart */}
                 <div className="card hover:shadow-lg transition-shadow">
-                    <div className="mb-4">
-                        <h2 className="text-xl font-bold flex items-center gap-2 mb-1">
+                    <div className="mb-6">
+                        <h2 className="text-xl font-bold flex items-center gap-3 mb-2">
                             <Zap className="h-5 w-5 text-indigo-600" />
                             توازن أحمال العمل
                         </h2>
@@ -507,7 +515,10 @@ export const Statistics = () => {
                                     direction: 'rtl',
                                     textAlign: 'right',
                                     fontFamily: 'Cairo, sans-serif',
+                                    paddingTop: '10px',
                                 }}
+                                iconType="rect"
+                                formatter={(value) => <span style={{ marginLeft: '8px' }}>{value}</span>}
                             />
                             <Bar yAxisId="left" dataKey="tasks" fill="#6366f1" name="المهام" radius={[4, 4, 0, 0]} />
                             <Bar yAxisId="right" dataKey="hours" fill="#ec4899" name="الساعات" radius={[4, 4, 0, 0]} />
@@ -518,8 +529,8 @@ export const Statistics = () => {
 
             {/* Member Performance Table */}
             <div className="card hover:shadow-lg transition-shadow">
-                <div className="mb-4">
-                    <h2 className="text-xl font-bold flex items-center gap-2 mb-1">
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold flex items-center gap-3 mb-2">
                         <Users className="h-5 w-5 text-purple-600" />
                         أداء الأعضاء
                     </h2>

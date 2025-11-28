@@ -3,7 +3,8 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
-import { PRIORITY_LABELS } from '../types';
+import { PRIORITY_CONFIG, TaskPriority } from '../types';
+import { PriorityBadge } from './PriorityBadge';
 
 interface TaskFiltersProps {
     isOpen: boolean;
@@ -70,13 +71,17 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
                             <Label>درجة الأهمية</Label>
                             <Select value={filterPriority} onValueChange={setFilterPriority}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="الكل" />
+                                    <SelectValue placeholder="الكل">
+                                        {filterPriority !== 'all' && (
+                                            <PriorityBadge priority={filterPriority as TaskPriority} />
+                                        )}
+                                    </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">الكل</SelectItem>
-                                    {Object.entries(PRIORITY_LABELS).map(([value, label]) => (
+                                    {Object.entries(PRIORITY_CONFIG).map(([value]) => (
                                         <SelectItem key={value} value={value}>
-                                            {label}
+                                            <PriorityBadge priority={value as TaskPriority} />
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

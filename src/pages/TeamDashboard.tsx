@@ -175,7 +175,7 @@ export const TeamDashboard = () => {
                     </button>
                 </div>
                 <div>
-                    <h1 className="text-3xl font-bold mb-1">{currentTeam?.name}</h1>
+                    <h1 className="text-3xl font-bold mb-4">{currentTeam?.name}</h1>
                     <p className="text-textSecondary dark:text-textSecondary-dark">
                         إدارة مهام الفريق
                     </p>
@@ -207,6 +207,7 @@ export const TeamDashboard = () => {
                 onEditTask={setEditingTask}
                 onDeleteTask={setTaskToDelete}
                 isAdminOrSupervisor={isAdminOrSupervisor}
+                role={role}
             />
 
             {/* Create/Edit Task Modal */}

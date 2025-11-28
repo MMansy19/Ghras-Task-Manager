@@ -10,6 +10,7 @@ interface KanbanBoardProps {
     onEditTask?: (task: Task) => void;
     onDeleteTask?: (task: Task) => void;
     isAdminOrSupervisor: boolean;
+    role?: string | null;
 }
 
 export const KanbanBoard: React.FC<KanbanBoardProps> = ({
@@ -135,7 +136,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                         <div
                                             ref={provided.innerRef}
                                             {...provided.droppableProps}
-                                            className={`bg-gray-50 dark:bg-gray-900 rounded-b-lg p-2 min-h-[200px] max-h-[calc(100vh-320px)] sm:max-h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin ${snapshot.isDraggingOver ? 'bg-gray-100 dark:bg-gray-800 ring-2 ring-primary' : ''
+                                            className={`bg-gray-100 dark:bg-gray-900 rounded-b-lg p-2 min-h-[200px] max-h-[calc(100vh-320px)] sm:max-h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin ${snapshot.isDraggingOver ? 'bg-gray-100 dark:bg-gray-800 ring-2 ring-primary' : ''
                                                 }`}
                                         >
                                             {statusTasks.length === 0 ? (
@@ -163,7 +164,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                                             >
                                                                 <TaskCard
                                                                     task={task}
-                                                                    onEdit={isAdminOrSupervisor && onEditTask ? () => onEditTask(task) : undefined}
+                                                                    onEdit={onEditTask ? () => onEditTask(task) : undefined}
                                                                     onDelete={isAdminOrSupervisor && onDeleteTask ? () => onDeleteTask(task) : undefined}
                                                                 />
                                                             </div>

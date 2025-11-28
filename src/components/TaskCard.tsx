@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import { Edit2, Trash2, Clock, Calendar } from 'lucide-react';
-import { Task, TaskPriority, PRIORITY_LABELS } from '../types';
+import { Task, TaskPriority } from '../types';
+import { PriorityBadge } from './PriorityBadge';
 
 interface TaskCardProps {
     task: Task;
@@ -51,9 +52,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) =>
             )}
 
             <div className="flex items-center gap-2 flex-wrap">
-                <span className={`badge-priority-${task.priority}`}>
-                    {PRIORITY_LABELS[task.priority as TaskPriority]}
-                </span>
+                <PriorityBadge priority={task.priority as TaskPriority} />
             </div>
 
             <div className="flex items-center gap-3 text-xs text-textSecondary dark:text-textSecondary-dark flex-wrap">

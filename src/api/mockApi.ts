@@ -482,13 +482,13 @@ export const fetchTasks = async (teamId?: number): Promise<Task[]> => {
   return tasks.map(task => TaskSchema.parse(task));
 };
 
-export const createTask = async (input: CreateTaskInput & { created_by: number }): Promise<Task> => {
+export const createTask = async (input: CreateTaskInput & { created_by: number; status?: string }): Promise<Task> => {
   await delay();
   const newTask: Task = {
     id: nextTaskId++,
     title: input.title,
     description: input.description || null,
-    status: 'new',
+    status: (input.status as any) || 'new',
     priority: input.priority || 'normal',
     due_date: input.due_date || null,
     team_id: input.team_id,
