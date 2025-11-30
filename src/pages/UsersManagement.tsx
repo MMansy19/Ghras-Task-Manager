@@ -22,6 +22,7 @@ export const UsersManagement = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterTeamId, setFilterTeamId] = useState<number | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -86,9 +87,12 @@ export const UsersManagement = () => {
     };
 
     const filteredUsers = users?.filter(
-        (user) =>
-            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchTerm.toLowerCase())
+        (user) => {
+            const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.email.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesTeam = filterTeamId === null || user.teams.includes(filterTeamId);
+            return matchesSearch && matchesTeam;
+        }
     );
 
     if (isLoading) {
@@ -125,17 +129,37 @@ export const UsersManagement = () => {
                 </div>
             </div>
 
-            {/* Search */}
+            {/* Search and Filters */}
             <div className="card mb-6">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <Input
-                        type="text"
-                        placeholder="البحث عن مستخدم (الاسم أو البريد الإلكتروني)"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pr-10"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Input
+                            type="text"
+                            placeholder="البحث عن مستخدم (الاسم أو البريد الإلكتروني)"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pr-10"
+                        />
+                    </div>
+                    <div>
+                        <Select
+                            value={filterTeamId?.toString() || 'all'}
+                            onValueChange={(value) => setFilterTeamId(value === 'all' ? null : parseInt(value))}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="تصفية حسب الفريق" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">جميع الفرق</SelectItem>
+                                {teams?.map((team) => (
+                                    <SelectItem key={team.id} value={team.id.toString()}>
+                                        {team.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
             </div>
 
@@ -278,7 +302,10 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
         role: 'admin' | 'supervisor' | 'volunteer';
         status: boolean;
         telegram_id: string;
-        job_title: string;
+        job_field: string;
+        age: number;
+        country: string;
+        experience_years: number;
         weekly_hours: number;
         teams: number[];
     }>({
@@ -289,7 +316,10 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
         role: 'volunteer',
         status: true,
         telegram_id: '',
-        job_title: '',
+        job_field: '',
+        age: 0,
+        country: '',
+        experience_years: 0,
         weekly_hours: 0,
         teams: [],
     });
@@ -305,7 +335,10 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                 role: user.role || 'volunteer',
                 status: user.status ?? true,
                 telegram_id: user.telegram_id || '',
-                job_title: user.job_title || '',
+                job_field: user.job_field || '',
+                age: user.age || 0,
+                country: user.country || '',
+                experience_years: user.experience_years || 0,
                 weekly_hours: user.weekly_hours || 0,
                 teams: user.teams || [],
             });
@@ -318,7 +351,10 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                 role: 'volunteer',
                 status: true,
                 telegram_id: '',
-                job_title: '',
+                job_field: '',
+                age: 0,
+                country: '',
+                experience_years: 0,
                 weekly_hours: 0,
                 teams: [],
             });
@@ -470,28 +506,69 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="job_title">مجال العمل</Label>
+                        <Label htmlFor="job_field">مجال العمل</Label>
                         <Input
-                            id="job_title"
+                            id="job_field"
                             type="text"
-                            value={formData.job_title || ''}
-                            onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
+                            value={formData.job_field || ''}
+                            onChange={(e) => setFormData({ ...formData, job_field: e.target.value })}
                             placeholder="مثال: مطور ويب"
                         />
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    <Label htmlFor="weekly_hours">ساعات التفرغ الأسبوعية</Label>
-                    <Input
-                        id="weekly_hours"
-                        type="number"
-                        value={formData.weekly_hours || 0}
-                        onChange={(e) =>
-                            setFormData({ ...formData, weekly_hours: parseInt(e.target.value) || 0 })
-                        }
-                        placeholder="0"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="age">العمر</Label>
+                        <Input
+                            id="age"
+                            type="number"
+                            value={formData.age || 0}
+                            onChange={(e) =>
+                                setFormData({ ...formData, age: parseInt(e.target.value) || 0 })
+                            }
+                            placeholder="0"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="country">الدولة</Label>
+                        <Input
+                            id="country"
+                            type="text"
+                            value={formData.country || ''}
+                            onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                            placeholder="مصر"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="experience_years">سنوات الخبرة</Label>
+                        <Input
+                            id="experience_years"
+                            type="number"
+                            value={formData.experience_years || 0}
+                            onChange={(e) =>
+                                setFormData({ ...formData, experience_years: parseInt(e.target.value) || 0 })
+                            }
+                            placeholder="0"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="weekly_hours">ساعات التفرغ الأسبوعية</Label>
+                        <Input
+                            id="weekly_hours"
+                            type="number"
+                            value={formData.weekly_hours || 0}
+                            onChange={(e) =>
+                                setFormData({ ...formData, weekly_hours: parseInt(e.target.value) || 0 })
+                            }
+                            placeholder="0"
+                        />
+                    </div>
                 </div>
 
                 <div className="space-y-2">

@@ -9,6 +9,7 @@ interface KanbanBoardProps {
     onDragEnd: (result: DropResult) => void;
     onEditTask?: (task: Task) => void;
     onDeleteTask?: (task: Task) => void;
+    onViewTask?: (task: Task) => void;
     isAdminOrSupervisor: boolean;
     role?: string | null;
 }
@@ -19,6 +20,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     onDragEnd,
     onEditTask,
     onDeleteTask,
+    onViewTask,
     isAdminOrSupervisor,
 }) => {
     const isDraggingRef = useRef(false);
@@ -164,6 +166,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                                             >
                                                                 <TaskCard
                                                                     task={task}
+                                                                    onView={onViewTask ? () => onViewTask(task) : undefined}
                                                                     onEdit={onEditTask ? () => onEditTask(task) : undefined}
                                                                     onDelete={isAdminOrSupervisor && onDeleteTask ? () => onDeleteTask(task) : undefined}
                                                                 />

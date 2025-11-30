@@ -8,11 +8,13 @@ import { LoadingSpinner } from './components/LoadingSpinner';
 import './index.css';
 
 // Lazy load pages for better code splitting
+const RoleSelection = lazy(() => import('./pages/RoleSelection').then(module => ({ default: module.RoleSelection })));
 const Home = lazy(() => import('./pages/Home').then(module => ({ default: module.Home })));
 const AppLayout = lazy(() => import('./layouts/AppLayout').then(module => ({ default: module.AppLayout })));
-const TeamDashboard = lazy(() => import('./pages/TeamDashboard').then(module => ({ default: module.TeamDashboard })));
+const ProjectDashboard = lazy(() => import('./pages/ProjectDashboard').then(module => ({ default: module.ProjectDashboard })));
 const UsersManagement = lazy(() => import('./pages/UsersManagement').then(module => ({ default: module.UsersManagement })));
 const Statistics = lazy(() => import('./pages/Statistics').then(module => ({ default: module.Statistics })));
+const Profile = lazy(() => import('./pages/Profile').then(module => ({ default: module.Profile })));
 
 // Create a client
 const queryClient = new QueryClient({
@@ -33,14 +35,16 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 <BrowserRouter>
                     <Suspense fallback={<LoadingSpinner message="جاري التحميل..." />}>
                         <Routes>
-                            <Route path="/" element={<Home />} />
+                            <Route path="/" element={<Navigate to="/select-role" replace />} />
+                            <Route path="/select-role" element={<RoleSelection />} />
                             <Route path="/app" element={<AppLayout />}>
-                                <Route index element={<Navigate to="/app/team/design" replace />} />
-                                <Route path="team/:teamSlug" element={<TeamDashboard />} />
+                                <Route index element={<Home />} />
+                                <Route path="project/:projectId" element={<ProjectDashboard />} />
+                                <Route path="profile" element={<Profile />} />
                                 <Route path="users" element={<UsersManagement />} />
                                 <Route path="stats" element={<Statistics />} />
                             </Route>
-                            <Route path="*" element={<Navigate to="/" replace />} />
+                            <Route path="*" element={<Navigate to="/select-role" replace />} />
                         </Routes>
                     </Suspense>
                 </BrowserRouter>

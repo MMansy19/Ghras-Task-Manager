@@ -395,35 +395,134 @@
 
 /* Kanban Board Mobile Optimizations */
 .kanban-container {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: none; /* Disable snap during drag */
+  position: relative;
 }
 
-.kanban-container > div > div {
-  scroll-snap-align: start;
+/* Smooth horizontal scrollbar for Kanban */
+.kanban-container::-webkit-scrollbar {
+  height: 6px;
 }
 
-/* Mobile touch improvements */
-@media (max-width: 640px) {
+.kanban-container::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.1);
+  border-radius: 8px;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.kanban-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.4), rgba(99, 102, 241, 0.6));
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.kanban-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.6), rgba(99, 102, 241, 0.8));
+}
+
+.dark .kanban-container::-webkit-scrollbar-track {
+  background: rgba(71, 85, 105, 0.2);
+}
+
+.dark .kanban-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, rgba(129, 140, 248, 0.4), rgba(129, 140, 248, 0.6));
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
   .kanban-container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    scroll-padding: 1rem;
   }
   
   .kanban-container::-webkit-scrollbar {
-    height: 4px;
+    height: 3px;
+  }
+
+  .kanban-container::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.5);
+  }
+
+  /* Enable snap align when NOT dragging */
+  .kanban-container:not(.dragging) {
+    scroll-snap-type: x proximity;
+  }
+
+  .kanban-container:not(.dragging) > div > div {
+    scroll-snap-align: center;
+    scroll-snap-stop: normal;
   }
 }
 
 /* Dragging state improvements */
-.card.cursor-grab {
+.cursor-grab {
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  -webkit-touch-callout: none;
 }
 
-.card.active\:cursor-grabbing:active {
+.active\:cursor-grabbing:active {
   cursor: grabbing !important;
+  cursor: -webkit-grabbing !important;
+  cursor: -moz-grabbing !important;
+}
+
+/* Draggable card enhancements */
+[data-rbd-draggable-context-id] {
+  touch-action: manipulation !important;
+}
+
+/* Prevent text selection during drag */
+.kanban-container.dragging * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  pointer-events: none;
+}
+
+.kanban-container.dragging [data-rbd-draggable-id] {
+  pointer-events: auto;
+}
+
+/* Drag ghost/placeholder styling */
+[data-rbd-placeholder-context-id] {
+  transition: height 0.2s ease, width 0.2s ease !important;
+}
+
+/* Mobile touch feedback */
+@media (hover: none) and (pointer: coarse) {
+  .cursor-grab:active {
+    transform: scale(1.02);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* RTL-specific drag adjustments */
+[dir="rtl"] .kanban-container {
+  direction: rtl;
+}
+
+/* Smooth scrolling during auto-scroll */
+.kanban-container.auto-scrolling {
+  scroll-behavior: auto;
+}
+
+/* Column drop zone highlight */
+[data-rbd-droppable-id].ring-2 {
+  animation: pulseRing 0.6s ease-in-out infinite;
+}
+
+@keyframes pulseRing {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }

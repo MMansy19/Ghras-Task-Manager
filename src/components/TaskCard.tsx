@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { Edit2, Trash2, Clock, Calendar } from 'lucide-react';
+import { Edit2, Trash2, Clock, Calendar, Eye } from 'lucide-react';
 import { Task, TaskPriority } from '../types';
 import { PriorityBadge } from './PriorityBadge';
 
@@ -7,9 +7,10 @@ interface TaskCardProps {
     task: Task;
     onEdit?: () => void;
     onDelete?: () => void;
+    onView?: () => void;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
+export const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onView }) => {
     const formatDate = (dateString: string | null | undefined) => {
         if (!dateString) return null;
         return DateTime.fromISO(dateString).setLocale('ar').toFormat('dd MMM');
@@ -21,8 +22,17 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) =>
                 <div className="flex-1">
                     <h4 className="font-bold text-sm line-clamp-2">{task.title}</h4>
                 </div>
-                {(onEdit || onDelete) && (
+                {(onView || onEdit || onDelete) && (
                     <div className="flex gap-1">
+                        {onView && (
+                            <button
+                                onClick={onView}
+                                className="text-gray-500 hover:text-blue-600 transition-colors p-1"
+                                aria-label="عرض"
+                            >
+                                <Eye className="w-4 h-4" />
+                            </button>
+                        )}
                         {onEdit && (
                             <button
                                 onClick={onEdit}

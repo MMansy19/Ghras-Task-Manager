@@ -12,7 +12,10 @@ export const UserSchema = z.object({
   role: UserRoleSchema,
   status: z.boolean().default(true),
   telegram_id: z.string().nullable().optional(),
-  job_title: z.string().nullable().optional(),
+  job_field: z.string().nullable().optional(),
+  experience_years: z.number().nullable().optional(),
+  age: z.number().nullable().optional(),
+  country: z.string().nullable().optional(),
   weekly_hours: z.number().nullable().optional(),
   teams: z.array(z.number()).default([]),
   created_at: z.string().optional(),
@@ -32,6 +35,33 @@ export const TeamSchema = z.object({
 });
 
 export type Team = z.infer<typeof TeamSchema>;
+
+// Project Schema
+export const ProjectSchema = z.object({
+  id: z.number(),
+  name: z.string().min(3, 'اسم المشروع يجب أن يكون 3 أحرف على الأقل'),
+  description: z.string().nullable().optional(),
+  active: z.boolean().default(true),
+  team_id: z.number().nullable().optional(),
+  created_by: z.number(),
+  created_at: z.string().optional(),
+  updated_at: z.string().optional(),
+});
+
+export type Project = z.infer<typeof ProjectSchema>;
+
+// Create Project Input Schema
+export const CreateProjectSchema = ProjectSchema.pick({
+  name: true,
+  description: true,
+  team_id: true,
+}).partial({ description: true, team_id: true });
+
+export type CreateProjectInput = z.infer<typeof CreateProjectSchema>;
+
+// Update Project Schema
+export const UpdateProjectSchema = ProjectSchema.partial();
+export type UpdateProjectInput = z.infer<typeof UpdateProjectSchema>;
 
 // Task Status Enum
 export const TaskStatusSchema = z.enum([
@@ -61,6 +91,7 @@ export const TaskSchema = z.object({
   status: TaskStatusSchema.default('new'),
   priority: TaskPrioritySchema.default('normal'),
   due_date: z.string().nullable().optional(),
+  project_id: z.number().nullable().optional(),
   team_id: z.number(),
   assignee_id: z.number().nullable().optional(),
   created_by: z.number(),
@@ -73,16 +104,27 @@ export const TaskSchema = z.object({
 
 export type Task = z.infer<typeof TaskSchema>;
 
+// Task Link Schema
+export const TaskLinkSchema = z.object({
+  id: z.number(),
+  source_task_id: z.number(),
+  linked_task_id: z.number(),
+  created_at: z.string().optional(),
+});
+
+export type TaskLink = z.infer<typeof TaskLinkSchema>;
+
 // Create Task Input Schema (for forms)
 export const CreateTaskSchema = TaskSchema.pick({
   title: true,
   description: true,
   priority: true,
   due_date: true,
+  project_id: true,
   team_id: true,
   assignee_id: true,
   work_hours: true,
-}).partial({ description: true, due_date: true, assignee_id: true, work_hours: true });
+}).partial({ description: true, due_date: true, assignee_id: true, work_hours: true, project_id: true });
 
 export type CreateTaskInput = z.infer<typeof CreateTaskSchema>;
 
@@ -98,8 +140,11 @@ export const CreateUserSchema = z.object({
   password_confirmation: z.string(),
   role: UserRoleSchema,
   status: z.boolean().default(true),
+  age: z.number().nullable().optional(),
+  country: z.string().nullable().optional(),
   telegram_id: z.string().optional(),
-  job_title: z.string().optional(),
+  job_field: z.string().optional(),
+  experience_years: z.number().optional(),
   weekly_hours: z.number().optional(),
   teams: z.array(z.number()).default([]),
 }).refine((data) => data.password === data.password_confirmation, {

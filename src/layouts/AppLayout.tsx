@@ -6,7 +6,7 @@ import { useDarkMode } from '../hooks/useDarkMode';
 import { fetchTeams } from '../api/mockApi';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Moon, Sun, Users, BarChart3, LogOut } from 'lucide-react';
+import { AlertTriangle, Moon, Sun, Users, BarChart3, LogOut, User } from 'lucide-react';
 
 export const AppLayout = () => {
     const navigate = useNavigate();
@@ -15,10 +15,16 @@ export const AppLayout = () => {
     const { isDark, toggle } = useDarkMode();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const { data: teams, isLoading, error } = useQuery({
-        queryKey: ['teams'],
-        queryFn: fetchTeams,
+    const { data: projects, isLoading: projectsLoading, error } = useQuery({
+        queryKey: ['projects'],
+        queryFn: async () => {
+            const { fetchProjects } = await import('../api/projectApi');
+            return fetchProjects();
+        },
     });
+
+    const isLoading = projectsLoading;
+    const activeProjects = projects?.filter(p => p.active);
 
     // Check for role - wait a bit to ensure localStorage is synced
     useEffect(() => {
@@ -99,7 +105,7 @@ export const AppLayout = () => {
             >
                 {/* Header */}
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center gap-3 mb-2">
+                    <Link to="/app" className="flex items-center gap-3 mb-2 hover:opacity-80 transition-opacity">
                         <img
                             src="/logo.png"
                             alt="شعار غراس"
@@ -109,7 +115,7 @@ export const AppLayout = () => {
                             className="h-10 w-10 object-contain"
                         />
                         <h1 className="text-xl font-bold text-primary">غراس مدير المهام</h1>
-                    </div>
+                    </Link>
                     <p className="text-sm text-textSecondary dark:text-textSecondary-dark text-center">
                         {role === 'admin' && 'مدير النظام'}
                         {role === 'supervisor' && 'مسؤول الفريق'}
@@ -131,29 +137,45 @@ export const AppLayout = () => {
                     </button>
                 </div>
 
-                {/* Teams Navigation */}
+                {/* Projects Navigation */}
                 <div className="flex-1 overflow-y-auto scrollbar-thin p-4">
                     <h3 className="text-xs font-bold text-textSecondary dark:text-textSecondary-dark uppercase mb-2">
-                        الفرق
+                        المشاريع
                     </h3>
                     <nav className="space-y-1 mb-6">
-                        {teams?.map((team) => (
+                        {activeProjects?.map((project) => (
                             <Link
-                                key={team.id}
-                                to={`/app/team/${team.slug}`}
+                                key={project.id}
+                                to={`/app/project/${project.id}`}
                                 className={
-                                    isActiveLink(team.slug)
+                                    isActiveLink(`/app/project/${project.id}`)
                                         ? 'sidebar-link-active'
                                         : 'sidebar-link'
                                 }
                                 onClick={() => setSidebarOpen(false)}
                             >
-                                <span className="flex-1">{team.name}</span>
-                                <span className="badge bg-gray-200 dark:bg-gray-700 text-textPrimary dark:text-textPrimary-dark">
-                                    {team.members_count}
-                                </span>
+                                <span className="flex-1">{project.name}</span>
                             </Link>
                         ))}
+                    </nav>
+
+                    {/* User Profile Links */}
+                    <h3 className="text-xs font-bold text-textSecondary dark:text-textSecondary-dark uppercase mb-2">
+                        الملف الشخصي
+                    </h3>
+                    <nav className="space-y-1 mb-6">
+                        <Link
+                            to="/app/profile"
+                            className={
+                                isActiveLink('/app/profile')
+                                    ? 'sidebar-link-active'
+                                    : 'sidebar-link'
+                            }
+                            onClick={() => setSidebarOpen(false)}
+                        >
+                            <User className="w-5 h-5" />
+                            <span className="flex-1">ملفي الشخصي</span>
+                        </Link>
                     </nav>
 
                     {/* Admin/Supervisor Links */}
