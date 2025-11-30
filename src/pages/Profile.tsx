@@ -1,31 +1,67 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
-import { fetchUsers, fetchTeams } from '../api/mockApi';
-import { useRole } from '../hooks/useRole';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getCurrentUser, updateCurrentUser, fetchTeams } from '../api/mockApi';
+import toast from 'react-hot-toast';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { ROLE_LABELS } from '../types';
-import { User, Mail, MapPin, Briefcase, Calendar, Clock, Users as UsersIcon } from 'lucide-react';
+import { ROLE_LABELS, WORK_FIELDS, User as UserType } from '../types';
+import { User, Mail, MapPin, Briefcase, Calendar, Clock, Users as UsersIcon, Edit2, Save, X } from 'lucide-react';
 
 export const Profile = () => {
-    const { role: userRole } = useRole();
+    const queryClient = useQueryClient();
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        telegram_id: '',
+        job_field: '',
+        experience_years: 0,
+        age: 0,
+        country: '',
+        weekly_hours: 0,
+    });
 
     const {
-        data: users = [],
+        data: currentUser,
         isLoading,
-    } = useQuery({
-        queryKey: ['users'],
-        queryFn: fetchUsers,
+    } = useQuery<UserType>({
+        queryKey: ['currentUser'],
+        queryFn: getCurrentUser,
     });
+
+    useEffect(() => {
+        if (currentUser) {
+            setFormData({
+                name: currentUser.name,
+                email: currentUser.email,
+                telegram_id: currentUser.telegram_id || '',
+                job_field: currentUser.job_field || '',
+                experience_years: currentUser.experience_years || 0,
+                age: currentUser.age || 0,
+                country: currentUser.country || '',
+                weekly_hours: currentUser.weekly_hours || 0,
+            });
+        }
+    }, [currentUser]);
 
     const { data: teams = [] } = useQuery({
         queryKey: ['teams'],
         queryFn: fetchTeams,
     });
 
-    if (isLoading) return <LoadingSpinner message="جاري تحميل البيانات..." />;
+    const updateMutation = useMutation({
+        mutationFn: updateCurrentUser,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+            toast.success('تم تحديث الملف الشخصي بنجاح');
+            setIsEditing(false);
+        },
+        onError: () => {
+            toast.error('فشل تحديث الملف الشخصي');
+        },
+    });
 
-    // Get current user profile (use first user for demo)
-    const currentUser = users.find(u => u.id === 1);
+    if (isLoading) return <LoadingSpinner message="جاري تحميل البيانات..." />;
 
     if (!currentUser) {
         return (
@@ -35,110 +71,271 @@ export const Profile = () => {
         );
     }
 
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        updateMutation.mutate({
+            name: formData.name,
+            email: formData.email,
+            telegram_id: formData.telegram_id || null,
+            job_field: formData.job_field || null,
+            experience_years: formData.experience_years || null,
+            age: formData.age || null,
+            country: formData.country || null,
+            weekly_hours: formData.weekly_hours || null,
+        });
+    };
+
+    const handleCancel = () => {
+        setFormData({
+            name: currentUser.name,
+            email: currentUser.email,
+            telegram_id: currentUser.telegram_id || '',
+            job_field: currentUser.job_field || '',
+            experience_years: currentUser.experience_years || 0,
+            age: currentUser.age || 0,
+            country: currentUser.country || '',
+            weekly_hours: currentUser.weekly_hours || 0,
+        });
+        setIsEditing(false);
+    };
+
     return (
         <div className="space-y-6 max-w-2xl">
-            <div>
-                <h1 className="text-3xl font-bold">ملفي الشخصي</h1>
-                <p className="text-textSecondary dark:text-textSecondary-dark mt-2">معلومات الملف الشخصي والتفاصيل الأساسية</p>
-            </div>
-
-            {/* Profile Header Card */}
-            <div className="card">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                    <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-4xl font-bold text-primary flex-shrink-0">
-                        {currentUser.name.charAt(0)}
-                    </div>
-
-                    <div className="flex-1">
-                        <h2 className="text-2xl font-bold">{currentUser.name}</h2>
-                        <p className="text-textSecondary dark:text-textSecondary-dark mt-1">
-                            <span className="inline-block px-3 py-1 rounded-full bg-primary/20 text-primary text-sm font-medium">
-                                {ROLE_LABELS[currentUser.role]}
-                            </span>
-                        </p>
-                        <p className="text-sm text-textSecondary dark:text-textSecondary-dark mt-3">
-                            {currentUser.status ? '✓ نشط' : '✗ معطل'}
-                        </p>
-                    </div>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold">ملفي الشخصي</h1>
+                    <p className="text-textSecondary dark:text-textSecondary-dark mt-2">معلومات الملف الشخصي والتفاصيل الأساسية</p>
                 </div>
+                {!isEditing && (
+                    <button
+                        onClick={() => setIsEditing(true)}
+                        className="btn-primary flex items-center gap-2"
+                    >
+                        <Edit2 className="w-4 h-4" />
+                        تعديل الملف
+                    </button>
+                )}
             </div>
 
-            {/* Contact Information */}
-            <div className="card space-y-4">
-                <h3 className="text-lg font-bold">معلومات التواصل</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-start gap-3">
-                        <Mail className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                        <div>
-                            <p className="text-sm text-textSecondary dark:text-textSecondary-dark">البريد الإلكتروني</p>
-                            <p className="font-medium">{currentUser.email}</p>
+            <form onSubmit={handleSubmit}>
+                {/* Profile Header Card */}
+                <div className="card mb-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                        <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-4xl font-bold text-primary flex-shrink-0">
+                            {currentUser.name.charAt(0)}
                         </div>
-                    </div>
 
-                    <div className="flex items-start gap-3">
-                        <User className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                        <div>
-                            <p className="text-sm text-textSecondary dark:text-textSecondary-dark">معرف التلجرام</p>
-                            <p className="font-medium">{currentUser.telegram_id || '-'}</p>
+                        <div className="flex-1">
+                            <h2 className="text-2xl font-bold">{currentUser.name}</h2>
+                            <p className="text-textSecondary dark:text-textSecondary-dark mt-1">
+                                <span className="inline-block px-3 py-1 rounded-full bg-primary/20 text-primary text-sm font-medium">
+                                    {ROLE_LABELS[currentUser.role]}
+                                </span>
+                            </p>
+                            <p className="text-sm text-textSecondary dark:text-textSecondary-dark mt-3">
+                                {currentUser.status ? '✓ نشط' : '✗ معطل'}
+                            </p>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Professional Information */}
-            <div className="card space-y-4">
-                <h3 className="text-lg font-bold">المعلومات الوظيفية</h3>
+                {/* Contact Information */}
+                <div className="card space-y-4 mb-6">
+                    <h3 className="text-lg font-bold">معلومات التواصل</h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-start gap-3">
-                        <Briefcase className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                        <div>
-                            <p className="text-sm text-textSecondary dark:text-textSecondary-dark">الحقل الوظيفي</p>
-                            <p className="font-medium">{currentUser.job_field || '-'}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-start gap-3">
+                            <Mail className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                            <div className="flex-1">
+                                <p className="text-sm text-textSecondary dark:text-textSecondary-dark mb-1">البريد الإلكتروني</p>
+                                {isEditing ? (
+                                    <input
+                                        type="email"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        className="input w-full"
+                                        required
+                                    />
+                                ) : (
+                                    <p className="font-medium">{currentUser.email}</p>
+                                )}
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="flex items-start gap-3">
-                        <Clock className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                        <div>
-                            <p className="text-sm text-textSecondary dark:text-textSecondary-dark">سنوات الخبرة</p>
-                            <p className="font-medium">{currentUser.experience_years ? `${currentUser.experience_years} سنوات` : '-'}</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                        <Clock className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                        <div>
-                            <p className="text-sm text-textSecondary dark:text-textSecondary-dark">ساعات العمل الأسبوعية</p>
-                            <p className="font-medium">{currentUser.weekly_hours ? `${currentUser.weekly_hours} ساعة` : '-'}</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                        <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                        <div>
-                            <p className="text-sm text-textSecondary dark:text-textSecondary-dark">الدولة</p>
-                            <p className="font-medium">{currentUser.country || '-'}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Personal Information */}
-            <div className="card space-y-4">
-                <h3 className="text-lg font-bold">المعلومات الشخصية</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-start gap-3">
-                        <Calendar className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                        <div>
-                            <p className="text-sm text-textSecondary dark:text-textSecondary-dark">العمر</p>
-                            <p className="font-medium">{currentUser.age ? `${currentUser.age} سنة` : '-'}</p>
+                        <div className="flex items-start gap-3">
+                            <User className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                            <div className="flex-1">
+                                <p className="text-sm text-textSecondary dark:text-textSecondary-dark mb-1">معرف التلجرام</p>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={formData.telegram_id}
+                                        onChange={(e) => setFormData({ ...formData, telegram_id: e.target.value })}
+                                        className="input w-full"
+                                        placeholder="@username"
+                                    />
+                                ) : (
+                                    <p className="font-medium">{currentUser.telegram_id || '-'}</p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                {/* Professional Information */}
+                <div className="card space-y-4 mb-6">
+                    <h3 className="text-lg font-bold">المعلومات الوظيفية</h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-start gap-3">
+                            <Briefcase className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                            <div className="flex-1">
+                                <p className="text-sm text-textSecondary dark:text-textSecondary-dark mb-1">مجال العمل</p>
+                                {isEditing ? (
+                                    <select
+                                        value={formData.job_field}
+                                        onChange={(e) => setFormData({ ...formData, job_field: e.target.value })}
+                                        className="input w-full"
+                                    >
+                                        <option value="">اختر مجال العمل</option>
+                                        {WORK_FIELDS.map((field) => (
+                                            <option key={field} value={field}>
+                                                {field}
+                                            </option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <p className="font-medium">{currentUser.job_field || '-'}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                            <Clock className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                            <div className="flex-1">
+                                <p className="text-sm text-textSecondary dark:text-textSecondary-dark mb-1">سنوات الخبرة</p>
+                                {isEditing ? (
+                                    <input
+                                        type="number"
+                                        value={formData.experience_years}
+                                        onChange={(e) => setFormData({ ...formData, experience_years: parseInt(e.target.value) || 0 })}
+                                        className="input w-full"
+                                        min="0"
+                                        max="50"
+                                    />
+                                ) : (
+                                    <p className="font-medium">{currentUser.experience_years ? `${currentUser.experience_years} سنوات` : '-'}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                            <Clock className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                            <div className="flex-1">
+                                <p className="text-sm text-textSecondary dark:text-textSecondary-dark mb-1">ساعات العمل الأسبوعية</p>
+                                {isEditing ? (
+                                    <input
+                                        type="number"
+                                        value={formData.weekly_hours}
+                                        onChange={(e) => setFormData({ ...formData, weekly_hours: parseInt(e.target.value) || 0 })}
+                                        className="input w-full"
+                                        min="0"
+                                        max="168"
+                                    />
+                                ) : (
+                                    <p className="font-medium">{currentUser.weekly_hours ? `${currentUser.weekly_hours} ساعة` : '-'}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                            <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                            <div className="flex-1">
+                                <p className="text-sm text-textSecondary dark:text-textSecondary-dark mb-1">الدولة</p>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={formData.country}
+                                        onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                                        className="input w-full"
+                                        placeholder="مصر"
+                                    />
+                                ) : (
+                                    <p className="font-medium">{currentUser.country || '-'}</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Personal Information */}
+                <div className="card space-y-4 mb-6">
+                    <h3 className="text-lg font-bold">المعلومات الشخصية</h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-start gap-3">
+                            <User className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                            <div className="flex-1">
+                                <p className="text-sm text-textSecondary dark:text-textSecondary-dark mb-1">الاسم</p>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        className="input w-full"
+                                        required
+                                    />
+                                ) : (
+                                    <p className="font-medium">{currentUser.name}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                            <Calendar className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                            <div className="flex-1">
+                                <p className="text-sm text-textSecondary dark:text-textSecondary-dark mb-1">العمر</p>
+                                {isEditing ? (
+                                    <input
+                                        type="number"
+                                        value={formData.age}
+                                        onChange={(e) => setFormData({ ...formData, age: parseInt(e.target.value) || 0 })}
+                                        className="input w-full"
+                                        min="0"
+                                        max="120"
+                                    />
+                                ) : (
+                                    <p className="font-medium">{currentUser.age ? `${currentUser.age} سنة` : '-'}</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Action Buttons */}
+                {isEditing && (
+                    <div className="card bg-gray-50 dark:bg-gray-800/50 border-2 border-primary/20">
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                type="button"
+                                onClick={handleCancel}
+                                className="btn-secondary flex items-center gap-2"
+                            >
+                                <X className="w-4 h-4" />
+                                إلغاء
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={updateMutation.isPending}
+                                className="btn-primary flex items-center gap-2"
+                            >
+                                <Save className="w-4 h-4" />
+                                {updateMutation.isPending ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </form>
 
             {/* Teams */}
             {currentUser.teams && currentUser.teams.length > 0 && (
@@ -189,15 +386,6 @@ export const Profile = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Note for non-admins */}
-            {userRole === 'volunteer' && (
-                <div className="card bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                    <p className="text-sm text-blue-800 dark:text-blue-300">
-                        <span className="font-medium">ملاحظة:</span> يمكنك فقط عرض ملفك الشخصي. لتعديل معلوماتك، يرجى التواصل مع المسؤول.
-                    </p>
-                </div>
-            )}
         </div>
     );
 };

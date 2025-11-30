@@ -34,7 +34,6 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
     filterMaxHours,
     setFilterMaxHours,
     users,
-    currentTeam,
     onClearFilters,
 }) => {
     const hasActiveFilters =
@@ -98,7 +97,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
                                 <SelectContent>
                                     <SelectItem value="all">الكل</SelectItem>
                                     <SelectItem value="unassigned">غير معيّن</SelectItem>
-                                    {users?.filter(u => u.status && currentTeam && u.teams.includes(currentTeam.id)).map((user) => (
+                                    {users?.filter(u => u.status && u).map((user) => (
                                         <SelectItem key={user.id} value={user.id.toString()}>
                                             {user.name}
                                         </SelectItem>

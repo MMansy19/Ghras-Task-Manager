@@ -16,6 +16,8 @@ interface TaskTableViewProps {
     onDeleteTask: (task: Task) => void;
     onViewTask: (task: Task) => void;
     isAdminOrSupervisor: boolean;
+    role?: string | null;
+    currentUserId?: number | null;
 }
 
 export const TaskTableView: React.FC<TaskTableViewProps> = ({
@@ -25,6 +27,8 @@ export const TaskTableView: React.FC<TaskTableViewProps> = ({
     onDeleteTask,
     onViewTask,
     isAdminOrSupervisor,
+    role,
+    currentUserId,
 }) => {
     const getUserName = (userId: number | null | undefined) => {
         if (!userId) return 'غير مُعين';
@@ -98,36 +102,60 @@ export const TaskTableView: React.FC<TaskTableViewProps> = ({
                                 </span>
                             </td>
                             <td>
-                                <span className="text-sm">
-                                    {getUserName(task.assignee_id)}
-                                </span>
+                                {task.assignee_id ? (
+                                    task.assignee_id === currentUserId ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+                                                {getUserName(task.assignee_id).charAt(0)}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-semibold text-primary">
+                                                    {getUserName(task.assignee_id)}
+                                                </span>
+                                                <span className="text-xs text-primary/70">
+                                                    (أنت)
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 font-bold text-sm">
+                                                {getUserName(task.assignee_id).charAt(0)}
+                                            </div>
+                                            <span className="text-sm">
+                                                {getUserName(task.assignee_id)}
+                                            </span>
+                                        </div>
+                                    )
+                                ) : (
+                                    <span className="text-sm text-gray-400">غير مُعين</span>
+                                )}
                             </td>
                             <td>
                                 <div className="flex gap-2 justify-start">
                                     <button
                                         onClick={() => onViewTask(task)}
-                                        className="text-sm btn-secondary py-1 px-2 flex items-center gap-1"
+                                        className="text-sm btn-secondary md:p-3 p-2 flex items-center gap-1"
                                         title="عرض التفاصيل"
                                     >
                                         <Eye className="w-3 h-3" />
-                                        عرض
                                     </button>
-                                    <button
-                                        onClick={() => onEditTask(task)}
-                                        className="text-sm btn-secondary py-1 px-2 flex items-center gap-1"
-                                        title="تعديل"
-                                    >
-                                        <Edit2 className="w-3 h-3" />
-                                        تعديل
-                                    </button>
+                                    {(role !== 'volunteer' || task.assignee_id === currentUserId) && (
+                                        <button
+                                            onClick={() => onEditTask(task)}
+                                            className="text-sm btn-secondary md:p-3 p-2 flex items-center gap-1"
+                                            title="تعديل"
+                                        >
+                                            <Edit2 className="w-3 h-3" />
+                                        </button>
+                                    )}
                                     {isAdminOrSupervisor && (
                                         <button
                                             onClick={() => onDeleteTask(task)}
-                                            className="text-sm bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 py-1 px-2 rounded-md flex items-center gap-1 transition-colors"
+                                            className="text-sm bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 md:p-3 p-2 rounded-md flex items-center gap-1 transition-colors"
                                             title="حذف"
                                         >
                                             <Trash2 className="w-3 h-3" />
-                                            حذف
                                         </button>
                                     )}
                                 </div>

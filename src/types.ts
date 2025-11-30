@@ -42,7 +42,6 @@ export const ProjectSchema = z.object({
   name: z.string().min(3, 'اسم المشروع يجب أن يكون 3 أحرف على الأقل'),
   description: z.string().nullable().optional(),
   active: z.boolean().default(true),
-  team_id: z.number().nullable().optional(),
   created_by: z.number(),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
@@ -54,8 +53,7 @@ export type Project = z.infer<typeof ProjectSchema>;
 export const CreateProjectSchema = ProjectSchema.pick({
   name: true,
   description: true,
-  team_id: true,
-}).partial({ description: true, team_id: true });
+}).partial({ description: true });
 
 export type CreateProjectInput = z.infer<typeof CreateProjectSchema>;
 
@@ -92,7 +90,7 @@ export const TaskSchema = z.object({
   priority: TaskPrioritySchema.default('normal'),
   due_date: z.string().nullable().optional(),
   project_id: z.number().nullable().optional(),
-  team_id: z.number(),
+  team_id: z.number().nullable().optional(),
   assignee_id: z.number().nullable().optional(),
   created_by: z.number(),
   started_at: z.string().nullable().optional(),
@@ -124,7 +122,7 @@ export const CreateTaskSchema = TaskSchema.pick({
   team_id: true,
   assignee_id: true,
   work_hours: true,
-}).partial({ description: true, due_date: true, assignee_id: true, work_hours: true, project_id: true });
+}).partial({ description: true, due_date: true, assignee_id: true, work_hours: true, project_id: true, team_id: true });
 
 export type CreateTaskInput = z.infer<typeof CreateTaskSchema>;
 
@@ -227,6 +225,35 @@ export const PRIORITY_LABELS: Record<TaskPriority, string> = {
   medium: PRIORITY_CONFIG.medium.label,
   normal: PRIORITY_CONFIG.normal.label,
 };
+
+// Work Fields Options in Arabic
+export const WORK_FIELDS = [
+  'تطوير ويب',
+  'تطوير تطبيقات',
+  'تصميم جرافيك',
+  'تصميم UI/UX',
+  'كتابة محتوى',
+  'الكتابة الإبداعية',
+  'تسويق إلكتروني',
+  'التسويق الرقمي',
+  'إدارة مجتمع',
+  'إدارة محتوى',
+  'إدارة تلجرام',
+  'البرمجة',
+  'تحرير فيديو',
+  'التصوير الفوتوغرافي',
+  'تحليل البيانات',
+  'الأمن السيبراني',
+  'إدارة مشاريع',
+  'تطوير ألعاب',
+  'الذكاء الاصطناعي',
+  'علوم البيانات',
+  'تصميم الموشن جرافيك',
+  'كتابة تقنية',
+  'ترجمة',
+  'مونتاج صوتي',
+  'هندسة الصوت',
+] as const;
 
 // Role labels in Arabic
 export const ROLE_LABELS: Record<UserRole, string> = {

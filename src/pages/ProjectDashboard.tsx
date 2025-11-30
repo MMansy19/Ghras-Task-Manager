@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DropResult } from '@hello-pangea/dnd';
 import toast from 'react-hot-toast';
 import { fetchProjectById } from '../api/projectApi';
-import { fetchTasks, updateTask, createTask, deleteTask, fetchUsers, fetchTeams } from '../api/mockApi';
+import { fetchTasks, updateTask, createTask, deleteTask, fetchUsers } from '../api/mockApi';
 import { Task, TaskStatus } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { EmptyState } from '../components/EmptyState';
@@ -28,6 +28,9 @@ export const ProjectDashboard = () => {
     const [linkingTask, setLinkingTask] = useState<Task | null>(null);
     const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 
+    // For volunteers, we simulate getting the current user ID (in a real app, this would come from auth)
+    const currentUserId = role === 'volunteer' ? 3 : null;
+
     // Filter states
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -47,10 +50,6 @@ export const ProjectDashboard = () => {
         queryFn: fetchUsers,
     });
 
-    const { data: teams } = useQuery({
-        queryKey: ['teams'],
-        queryFn: fetchTeams,
-    });
 
     const {
         data: allTasks,
@@ -328,6 +327,8 @@ export const ProjectDashboard = () => {
                     onDeleteTask={setTaskToDelete}
                     isAdminOrSupervisor={isAdminOrSupervisor}
                     role={role}
+                    currentUserId={currentUserId}
+                    users={users}
                 />
             ) : (
                 <TaskTableView
@@ -337,6 +338,8 @@ export const ProjectDashboard = () => {
                     onDeleteTask={setTaskToDelete}
                     onViewTask={setViewingTask}
                     isAdminOrSupervisor={isAdminOrSupervisor}
+                    role={role}
+                    currentUserId={currentUserId}
                 />
             )}
 
@@ -348,9 +351,7 @@ export const ProjectDashboard = () => {
                     setEditingTask(null);
                 }}
                 task={editingTask}
-                teamId={project.team_id || undefined}
                 users={users}
-                currentTeam={teams?.find(t => t.id === project.team_id)}
                 role={role}
                 onSubmit={(data) => {
                     if (editingTask) {

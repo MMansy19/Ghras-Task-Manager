@@ -21,7 +21,6 @@ export let MOCK_PROJECTS: Project[] = [
     name: 'موقع الأكاديمية الرسمي',
     description: 'بناء وتطوير الموقع الرسمي للأكاديمية',
     active: true,
-    team_id: 3,
     created_by: 1,
     created_at: '2025-01-01T00:00:00Z',
   },
@@ -30,7 +29,6 @@ export let MOCK_PROJECTS: Project[] = [
     name: 'دورة التسويق الرقمي',
     description: 'إنتاج محتوى وتطوير منصة الدورة',
     active: true,
-    team_id: 2,
     created_by: 1,
     created_at: '2025-02-01T00:00:00Z',
   },
@@ -39,7 +37,6 @@ export let MOCK_PROJECTS: Project[] = [
     name: 'تطبيق إدارة المشاريع',
     description: 'تطوير تطبيق ويب لإدارة مشاريع الأكاديمية',
     active: true,
-    team_id: 3,
     created_by: 1,
     created_at: '2025-03-01T00:00:00Z',
   },
@@ -48,7 +45,6 @@ export let MOCK_PROJECTS: Project[] = [
     name: 'حملة توعية الخصوصية',
     description: 'إعداد محتوى توعوي حول الخصوصية الرقمية',
     active: true,
-    team_id: 5,
     created_by: 1,
     created_at: '2025-04-01T00:00:00Z',
   },
@@ -577,6 +573,7 @@ let MOCK_TASKS: Task[] = [
 
 let nextTaskId = 19;
 let nextUserId = 16;
+let currentUserId = 1; // Simulate logged-in user
 
 // Simulate API delay
 const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
@@ -591,6 +588,26 @@ export const fetchTeams = async (): Promise<Team[]> => {
 export const fetchUsers = async (): Promise<User[]> => {
   await delay();
   return MOCK_USERS.map(user => UserSchema.parse(user));
+};
+
+export const getCurrentUser = async (): Promise<User> => {
+  await delay();
+  const user = MOCK_USERS.find(u => u.id === currentUserId);
+  if (!user) throw new Error('المستخدم غير موجود');
+  return UserSchema.parse(user);
+};
+
+export const updateCurrentUser = async (input: Partial<User>): Promise<User> => {
+  await delay();
+  const index = MOCK_USERS.findIndex(u => u.id === currentUserId);
+  if (index === -1) throw new Error('المستخدم غير موجود');
+  
+  MOCK_USERS[index] = { 
+    ...MOCK_USERS[index], 
+    ...input,
+    updated_at: new Date().toISOString()
+  };
+  return UserSchema.parse(MOCK_USERS[index]);
 };
 
 export const createUser = async (input: Omit<CreateUserInput, 'password_confirmation'>): Promise<User> => {

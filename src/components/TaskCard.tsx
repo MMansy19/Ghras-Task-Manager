@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
-import { Edit2, Trash2, Clock, Calendar, Eye } from 'lucide-react';
-import { Task, TaskPriority } from '../types';
+import { Edit2, Trash2, Clock, Calendar, Eye, User as UserIcon } from 'lucide-react';
+import { Task, TaskPriority, User } from '../types';
 import { PriorityBadge } from './PriorityBadge';
 
 interface TaskCardProps {
@@ -8,13 +8,23 @@ interface TaskCardProps {
     onEdit?: () => void;
     onDelete?: () => void;
     onView?: () => void;
+    users?: User[];
+    currentUserId?: number | null;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onView }) => {
+export const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onView, users, currentUserId }) => { currentUserId }) => {
     const formatDate = (dateString: string | null | undefined) => {
         if (!dateString) return null;
         return DateTime.fromISO(dateString).setLocale('ar').toFormat('dd MMM');
     };
+
+    const getUserName = (userId: number | null | undefined) => {
+        if (!userId) return null;
+        const user = users?.find(u => u.id === userId);
+        return user?.name || 'غير معروف';
+    };
+
+    const isCurrentUser = task.assignee_id === currentUserId;
 
     return (
         <div className="space-y-2">
@@ -81,11 +91,28 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onVi
                 )}
 
                 {task.assignee_id && (
-                    <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold">
-                            {task.assignee_id}
+                    isCurrentUser ? (
+                        <div className="flex items-center gap-1.5 px-2 py-1 bg-primary/10 rounded-full border border-primary/30">
+                            <div className="w-5 h-5 rounded-full bg-primary/30 flex items-center justify-center text-primary">
+                                <UserIcon className="w-3 h-3" />
+                            </div>
+                            <span className="text-xs font-semibold text-primary">
+                                {getUserName(task.assignee_id)}
+                            </span>
+                            <span className="text-[10px] text-primary/70 font-medium">
+                                (أنت)
+                            </span>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 text-[10px] font-bold">
+                                {getUserName(task.assignee_id)?.charAt(0)}
+                            </div>
+                            <span className="text-xs text-textSecondary dark:text-textSecondary-dark">
+                                {getUserName(task.assignee_id)}
+                            </span>
+                        </div>
+                    )
                 )}
             </div>
         </div>

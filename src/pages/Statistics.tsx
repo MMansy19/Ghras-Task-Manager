@@ -2,13 +2,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadialBarChart, RadialBar, LineChart, Line, AreaChart, Area } from 'recharts';
 import { fetchStats } from '../api/mockApi';
+import { fetchProjects } from '../api/projectApi';
 import { STATUS_LABELS } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { EmptyState } from '../components/EmptyState';
 import { useRole } from '../hooks/useRole';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { AlertTriangle, BarChart3, ClipboardList, CheckCircle, Clock, Users, PieChart as PieChartIcon, Target, TrendingUp, Award, Zap } from 'lucide-react';
+import { AlertTriangle, BarChart3, ClipboardList, CheckCircle, Clock, Users, PieChart as PieChartIcon, Target, TrendingUp, Award, Zap, FolderKanban } from 'lucide-react';
 
 export const Statistics = () => {
     const { role } = useRole();
@@ -23,6 +24,11 @@ export const Statistics = () => {
     const { data: stats, isLoading, error } = useQuery({
         queryKey: ['stats'],
         queryFn: fetchStats,
+    });
+
+    const { data: projects = [] } = useQuery({
+        queryKey: ['projects'],
+        queryFn: fetchProjects,
     });
 
     if (isLoading) {
@@ -64,6 +70,23 @@ export const Statistics = () => {
     const totalHours = stats.member_performance.reduce((sum, member) => sum + member.total_hours, 0);
     const totalMembers = stats.member_performance.length;
     const completionRate = totalTasks > 0 ? ((completedTasks / totalTasks) * 100).toFixed(1) : 0;
+    const totalProjects = projects.filter(p => p.active).length;
+
+    // Calculate project statistics
+    const projectStats = projects.map(project => {
+        // For now, create a simple distribution based on project ID
+        // In real app, this would come from backend
+        const taskCount = Math.floor(totalTasks / projects.length) + (project.id % 3);
+        const completed = Math.floor(taskCount * (0.5 + (project.id % 4) * 0.1));
+
+        return {
+            id: project.id,
+            name: project.name,
+            total_tasks: taskCount,
+            completed_tasks: completed,
+            completion_rate: taskCount > 0 ? ((completed / taskCount) * 100).toFixed(1) : 0,
+        };
+    }).sort((a, b) => b.total_tasks - a.total_tasks);
 
     // Additional chart data preparations
     // Top 5 performers for radial chart
@@ -120,7 +143,7 @@ export const Statistics = () => {
             </div>
 
             {/* Summary Cards - Top Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div className="card hover:shadow-lg transition-shadow">
                     <div className="flex items-center justify-between">
                         <div>
@@ -145,6 +168,20 @@ export const Statistics = () => {
                         </div>
                         <div className="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
                             <CheckCircle className="w-6 h-6 text-green-600" />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="card hover:shadow-lg transition-shadow">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-textSecondary dark:text-textSecondary-dark mb-1">
+                                عدد المشاريع
+                            </p>
+                            <h3 className="text-3xl font-bold text-purple-600">{totalProjects}</h3>
+                        </div>
+                        <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+                            <FolderKanban className="w-6 h-6 text-purple-600" />
                         </div>
                     </div>
                 </div>
@@ -536,6 +573,181 @@ export const Statistics = () => {
                             <Bar yAxisId="right" dataKey="hours" fill="#ec4899" name="الساعات" radius={[4, 4, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
+                </div>
+            </div>
+
+            {/* Project Statistics Section */}
+            <div className="card hover:shadow-lg transition-shadow">
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold flex items-center gap-3 mb-2">
+                        <FolderKanban className="h-5 w-5 text-purple-600" />
+                        إحصائيات المشاريع
+                    </h2>
+                    <p className="text-sm text-textSecondary dark:text-textSecondary-dark">
+                        نظرة شاملة على أداء جميع المشاريع النشطة ({totalProjects} مشروع)
+                    </p>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2">
+                    {/* Projects Performance Bar Chart */}
+                    <div>
+                        <h3 className="text-md font-semibold mb-4 text-textSecondary dark:text-textSecondary-dark">
+                            المهام حسب المشروع
+                        </h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={projectStats} layout="vertical">
+                                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                                <XAxis type="number" />
+                                <YAxis
+                                    dataKey="name"
+                                    type="category"
+                                    width={120}
+                                    tick={{ fontSize: 11 }}
+                                    textAnchor="start"
+                                />
+                                <Tooltip
+                                    contentStyle={{
+                                        direction: 'rtl',
+                                        textAlign: 'right',
+                                        fontFamily: 'Cairo, sans-serif',
+                                        backgroundColor: 'hsl(var(--card))',
+                                        border: '1px solid hsl(var(--border))',
+                                        borderRadius: '8px',
+                                    }}
+                                />
+                                <Legend
+                                    wrapperStyle={{
+                                        direction: 'rtl',
+                                        textAlign: 'right',
+                                        fontFamily: 'Cairo, sans-serif',
+                                        paddingTop: '10px',
+                                    }}
+                                    iconType="circle"
+                                    formatter={(value) => <span style={{ marginRight: '4px' }}>{value}</span>}
+                                />
+                                <Bar dataKey="completed_tasks" fill="#16a34a" name="المنجزة" radius={[0, 4, 4, 0]} />
+                                <Bar dataKey="total_tasks" fill="#94a3b8" name="الإجمالي" radius={[0, 4, 4, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                    {/* Projects Completion Rate Line Chart */}
+                    <div>
+                        <h3 className="text-md font-semibold mb-4 text-textSecondary dark:text-textSecondary-dark">
+                            نسبة الإنجاز لكل مشروع
+                        </h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <LineChart data={projectStats}>
+                                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                                <XAxis
+                                    dataKey="name"
+                                    tick={{ fontSize: 10 }}
+                                    angle={-30}
+                                    textAnchor="start"
+                                    height={80}
+                                />
+                                <YAxis
+                                    domain={[0, 100]}
+                                    tick={{ fontSize: 12 }}
+                                    textAnchor="start"
+                                    label={{ value: '%', angle: -90, position: 'insideLeft' }}
+                                />
+                                <Tooltip
+                                    contentStyle={{
+                                        direction: 'rtl',
+                                        textAlign: 'right',
+                                        fontFamily: 'Cairo, sans-serif',
+                                        backgroundColor: 'hsl(var(--card))',
+                                        border: '1px solid hsl(var(--border))',
+                                        borderRadius: '8px',
+                                    }}
+                                    formatter={(value) => [`${value}%`, 'نسبة الإنجاز']}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="completion_rate"
+                                    stroke="#8b5cf6"
+                                    strokeWidth={3}
+                                    dot={{ fill: '#8b5cf6', r: 5 }}
+                                    activeDot={{ r: 7 }}
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Projects Summary Table */}
+                <div className="mt-6 overflow-x-auto">
+                    <h3 className="text-md font-semibold mb-4 text-textSecondary dark:text-textSecondary-dark">
+                        ملخص المشاريع
+                    </h3>
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th className="w-16">#</th>
+                                <th>اسم المشروع</th>
+                                <th className="text-center">إجمالي المهام</th>
+                                <th className="text-center">المهام المنجزة</th>
+                                <th className="text-center">نسبة الإنجاز</th>
+                                <th className="text-center">الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {projectStats.map((project, index) => {
+                                const projectData = projects.find(p => p.id === project.id);
+                                return (
+                                    <tr key={project.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                        <td>
+                                            <div className="flex items-center justify-center">
+                                                <span className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center text-sm font-semibold text-purple-600">
+                                                    {index + 1}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className="font-semibold text-base">{project.name}</span>
+                                            {projectData?.description && (
+                                                <p className="text-xs text-textSecondary dark:text-textSecondary-dark mt-1">
+                                                    {projectData.description}
+                                                </p>
+                                            )}
+                                        </td>
+                                        <td className="text-center">
+                                            <span className="font-medium text-textPrimary dark:text-textPrimary-dark">
+                                                {project.total_tasks}
+                                            </span>
+                                        </td>
+                                        <td className="text-center">
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400">
+                                                {project.completed_tasks}
+                                            </span>
+                                        </td>
+                                        <td className="text-center">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <div className="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all"
+                                                        style={{ width: `${project.completion_rate}%` }}
+                                                    />
+                                                </div>
+                                                <span className="text-sm font-medium text-textSecondary dark:text-textSecondary-dark min-w-[3rem]">
+                                                    {project.completion_rate}%
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="text-center">
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${projectData?.active
+                                                ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                                                : 'bg-gray-100 dark:bg-gray-900/20 text-gray-700 dark:text-gray-400'
+                                                }`}>
+                                                {projectData?.active ? 'نشط' : 'متوقف'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

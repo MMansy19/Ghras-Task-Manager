@@ -13,29 +13,27 @@ interface TaskFormModalProps {
     isOpen: boolean;
     onClose: () => void;
     task: Task | null;
-    teamId?: number;
     onSubmit: (data: any) => void;
     users?: any[];
-    currentTeam?: any;
     role: string | null;
+    teamId?: number;
+    currentTeam?: any;
 }
 
 export const TaskFormModal: React.FC<TaskFormModalProps> = ({
     isOpen,
     onClose,
     task,
-    teamId,
     onSubmit,
     users,
-    currentTeam,
     role,
 }) => {
     // For volunteers, we simulate getting the current user ID (in a real app, this would come from auth)
     // Using user ID 3 (يوسف علي) as the demo volunteer user
     const currentUserId = role === 'volunteer' ? 3 : null;
 
-    // Check if volunteer is editing (can only update work_hours)
-    const isVolunteerEditing = role === 'volunteer' && task !== null;
+    // Check if volunteer is editing their own task (can only update status and work_hours)
+    const isVolunteerEditing = role === 'volunteer' && task !== null && task.assignee_id === currentUserId;
 
     const [formData, setFormData] = useState({
         title: '',
@@ -76,15 +74,15 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // If volunteer is editing, only submit work_hours
+        // If volunteer is editing, only submit status and work_hours
         if (isVolunteerEditing) {
             onSubmit({
+                status: formData.status,
                 work_hours: formData.work_hours,
             });
         } else {
             onSubmit({
                 ...formData,
-                team_id: teamId,
                 assignee_id: formData.assignee_id && formData.assignee_id !== 'unassigned' ? parseInt(formData.assignee_id as any) : null,
             });
         }
@@ -101,7 +99,14 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                 {isVolunteerEditing && (
                     <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg p-4 mb-4">
                         <p className="text-sm text-primary-800 dark:text-primary-200">
-                            يمكن للأعضاء تحديث ساعات العمل فقط. للتعديلات الأخرى، يرجى التواصل مع المشرف أو المدير.
+                            يمكنك تحديث حالة المهمة وساعات العمل للمهام المعينة لك فقط. للتعديلات الأخرى، يرجى التواصل مع المشرف أو المدير.
+                        </p>
+                    </div>
+                )}
+                {role === 'volunteer' && task && !isVolunteerEditing && (
+                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-4">
+                        <p className="text-sm text-amber-800 dark:text-amber-200">
+                            هذه المهمة غير معينة لك. يمكنك فقط تعديل المهام المعينة لك.
                         </p>
                     </div>
                 )}
@@ -115,8 +120,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         required
                         placeholder="أدخل عنوان المهمة"
-                        disabled={isVolunteerEditing}
-                        className={isVolunteerEditing ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : ""}
+                        disabled={role === 'volunteer' && !!task}
+                        className={role === 'volunteer' && !!task ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : ""}
                     />
                 </div>
 
@@ -128,8 +133,8 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         rows={3}
                         placeholder="أدخل وصف المهمة"
-                        disabled={isVolunteerEditing}
-                        className={isVolunteerEditing ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : ""}
+                        disabled={role === 'volunteer' && !!task}
+                        className={role === 'volunteer' && !!task ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : ""}
                     />
                 </div>
 
@@ -139,9 +144,9 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                         <Select
                             value={formData.status}
                             onValueChange={(value) => setFormData({ ...formData, status: value as TaskStatus })}
-                            disabled={isVolunteerEditing}
+                            disabled={role === 'volunteer' && !isVolunteerEditing}
                         >
-                            <SelectTrigger className={isVolunteerEditing ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : ""}>
+                            <SelectTrigger className={role === 'volunteer' && !isVolunteerEditing ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : ""}>
                                 <SelectValue placeholder="اختر الحالة" />
                             </SelectTrigger>
                             <SelectContent>
@@ -159,9 +164,9 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                         <Select
                             value={formData.priority}
                             onValueChange={(value) => setFormData({ ...formData, priority: value as TaskPriority })}
-                            disabled={isVolunteerEditing}
+                            disabled={role === 'volunteer'}
                         >
-                            <SelectTrigger className={isVolunteerEditing ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : ""}>
+                            <SelectTrigger className={role === 'volunteer' ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : ""}>
                                 <SelectValue placeholder="اختر درجة الأهمية">
                                     {formData.priority && (
                                         <PriorityBadge priority={formData.priority as TaskPriority} />
@@ -181,7 +186,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
 
                 <div className="space-y-2">
                     <Label htmlFor="due_date">تاريخ التسليم</Label>
-                    <div className={isVolunteerEditing ? "pointer-events-none opacity-50" : ""}>
+                    <div className={role === 'volunteer' && !!task ? "pointer-events-none opacity-50" : ""}>
                         <DatePicker
                             value={formData.due_date || ''}
                             onChange={(date) => setFormData({ ...formData, due_date: date })}
@@ -220,7 +225,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="unassigned">غير معيّن</SelectItem>
-                                    {users?.filter(u => u.status && currentTeam && u.teams.includes(currentTeam.id)).map((user) => (
+                                    {users?.filter(u => u.status && u).map((user) => (
                                         <SelectItem key={user.id} value={user.id.toString()}>
                                             {user.name} ({user.telegram_id})
                                         </SelectItem>
@@ -240,7 +245,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="unassigned">غير معيّن</SelectItem>
-                                    {users?.filter(u => u.status && currentTeam && u.teams.includes(currentTeam.id)).map((user) => (
+                                    {users?.filter(u => u.status && u).map((user) => (
                                         <SelectItem key={user.id} value={user.id.toString()}>
                                             {user.name} ({user.telegram_id})
                                         </SelectItem>
@@ -258,10 +263,12 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                             step="0.5"
                             value={formData.work_hours}
                             onChange={(e) => setFormData({ ...formData, work_hours: parseFloat(e.target.value) })}
+                            disabled={role === 'volunteer' && !isVolunteerEditing}
+                            className={role === 'volunteer' && !isVolunteerEditing ? "bg-gray-100 dark:bg-gray-700 cursor-not-allowed" : ""}
                         />
                         {isVolunteerEditing && (
                             <p className="text-xs text-primary mt-1">
-                                يمكنك تحديث ساعات العمل فقط
+                                يمكنك تحديث حالة المهمة وساعات العمل
                             </p>
                         )}
                     </div>
@@ -272,7 +279,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
                         إلغاء
                     </Button>
                     <Button type="submit">
-                        {isVolunteerEditing ? 'تحديث ساعات العمل' : task ? 'حفظ التعديلات' : 'إنشاء المهمة'}
+                        {isVolunteerEditing ? 'حفظ التعديلات' : task ? 'حفظ التعديلات' : 'إنشاء المهمة'}
                     </Button>
                 </div>
             </form>
