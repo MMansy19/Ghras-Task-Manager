@@ -3,7 +3,6 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useRole } from '../hooks/useRole';
 import { useDarkMode } from '../hooks/useDarkMode';
-import { fetchTeams } from '../api/mockApi';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useEffect, useState } from 'react';
 import { AlertTriangle, Moon, Sun, Users, BarChart3, LogOut, User } from 'lucide-react';
