@@ -44,13 +44,14 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
 
     return (
         <div className="card mb-6">
+            {/* Mobile Toggle Button */}
             <button
                 onClick={onToggle}
-                className="w-full flex items-center justify-between text-right hover:opacity-80 transition-opacity"
+                className="lg:hidden w-full flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors mb-4"
             >
                 <div className="flex items-center gap-2">
                     <Filter className="w-5 h-5 text-primary" />
-                    <h3 className="text-lg font-semibold">تصفية المهام</h3>
+                    <span className="font-semibold">الفلاتر</span>
                     {hasActiveFilters && (
                         <span className="badge badge-status-done text-xs">
                             نشط
@@ -62,9 +63,9 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
                 />
             </button>
 
-            {isOpen && (
-                <>
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            {/* Filters - Always visible on desktop, toggleable on mobile */}
+            <div className={`${isOpen ? 'block' : 'hidden'} lg:block`}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                         {/* Priority Filter */}
                         <div>
                             <Label>درجة الأهمية</Label>
@@ -139,12 +140,11 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
                                 onClick={onClearFilters}
                                 className="w-full sm:w-auto"
                             >
-                                مسح التصفية
+                                مسح الفلاتر
                             </Button>
                         </div>
                     )}
-                </>
-            )}
+                </div>
         </div>
     );
 };

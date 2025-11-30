@@ -12,7 +12,7 @@ interface TaskCardProps {
     currentUserId?: number | null;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onView, users, currentUserId }) => { currentUserId }) => {
+export const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onView, users, currentUserId }) => {
     const formatDate = (dateString: string | null | undefined) => {
         if (!dateString) return null;
         return DateTime.fromISO(dateString).setLocale('ar').toFormat('dd MMM');

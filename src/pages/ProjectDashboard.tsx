@@ -15,6 +15,8 @@ import { TaskTableView, TaskDetailsModal } from '../components/TaskTableView';
 import { TaskFormModal } from '../components/TaskFormModal';
 import { TaskLinking } from '../components/TaskLinking';
 import { useRole } from '../hooks/useRole';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Label } from '../components/ui/label';
 import { AlertTriangle, Plus, LayoutGrid, List } from 'lucide-react';
 
 export const ProjectDashboard = () => {
@@ -200,7 +202,7 @@ export const ProjectDashboard = () => {
             {/* Header */}
             <div className="mb-6">
                 <div className="flex flex-col sm:flex-row-reverse items-start sm:items-center justify-between gap-4 mb-4">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 md:mt-auto">
                         <button
                             onClick={() => setIsCreateModalOpen(true)}
                             className="btn-primary flex items-center gap-2"
@@ -246,74 +248,86 @@ export const ProjectDashboard = () => {
 
             {/* Filters */}
             <div className="card mb-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold">التصفية</h3>
-                    <button
-                        onClick={() => setIsFilterOpen(!isFilterOpen)}
-                        className="text-sm text-primary hover:underline"
+                {/* Mobile Toggle Button */}
+                <button
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                    className="lg:hidden w-full flex items-center justify-between mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                >
+                    <span className="font-semibold">الفلاتر</span>
+                    <svg
+                        className={`w-5 h-5 transform transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                     >
-                        {isFilterOpen ? 'إخفاء' : 'إظهار'} الفلاتر
-                    </button>
-                </div>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
 
-                {isFilterOpen && (
+                {/* Filters - Always visible on desktop, toggleable on mobile */}
+                <div className={`${isFilterOpen ? 'block' : 'hidden'} lg:block`}>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1">الحالة</label>
-                            <select
-                                value={filterStatus}
-                                onChange={(e) => setFilterStatus(e.target.value)}
-                                className="input"
-                            >
-                                <option value="all">الكل</option>
-                                <option value="new">جديد</option>
-                                <option value="scheduled">مجدول</option>
-                                <option value="in_progress">قيد التنفيذ</option>
-                                <option value="issue">مشكلة</option>
-                                <option value="done">تم التنفيذ</option>
-                                <option value="docs">وثائق</option>
-                            </select>
+                        <div className="space-y-2">
+                            <Label>الحالة</Label>
+                            <Select value={filterStatus} onValueChange={setFilterStatus}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="اختر الحالة" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">الكل</SelectItem>
+                                    <SelectItem value="new">جديد</SelectItem>
+                                    <SelectItem value="scheduled">مجدول</SelectItem>
+                                    <SelectItem value="in_progress">قيد التنفيذ</SelectItem>
+                                    <SelectItem value="issue">مشكلة</SelectItem>
+                                    <SelectItem value="done">تم التنفيذ</SelectItem>
+                                    <SelectItem value="docs">وثائق</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium mb-1">الأولوية</label>
-                            <select
-                                value={filterPriority}
-                                onChange={(e) => setFilterPriority(e.target.value)}
-                                className="input"
-                            >
-                                <option value="all">الكل</option>
-                                <option value="very_urgent">عاجلة جدًا</option>
-                                <option value="urgent">عاجلة</option>
-                                <option value="medium">متوسطة</option>
-                                <option value="normal">عادية</option>
-                            </select>
+                        <div className="space-y-2">
+                            <Label>الأولوية</Label>
+                            <Select value={filterPriority} onValueChange={setFilterPriority}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="اختر الأولوية" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">الكل</SelectItem>
+                                    <SelectItem value="very_urgent">عاجلة جدًا</SelectItem>
+                                    <SelectItem value="urgent">عاجلة</SelectItem>
+                                    <SelectItem value="medium">متوسطة</SelectItem>
+                                    <SelectItem value="normal">عادية</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium mb-1">المسؤول</label>
-                            <select
-                                value={filterAssignee}
-                                onChange={(e) => setFilterAssignee(e.target.value)}
-                                className="input"
-                            >
-                                <option value="all">الكل</option>
-                                <option value="unassigned">غير مُعين</option>
-                                {users?.map((user) => (
-                                    <option key={user.id} value={user.id.toString()}>
-                                        {user.name}
-                                    </option>
-                                ))}
-                            </select>
+                        <div className="space-y-2">
+                            <Label>المسؤول</Label>
+                            <Select value={filterAssignee} onValueChange={setFilterAssignee}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="اختر المسؤول" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">الكل</SelectItem>
+                                    <SelectItem value="unassigned">غير مُعين</SelectItem>
+                                    {users?.map((user) => (
+                                        <SelectItem key={user.id} value={user.id.toString()}>
+                                            {user.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <div className="md:col-span-3 flex gap-2">
-                            <button onClick={handleClearFilters} className="btn-secondary text-sm">
-                                مسح الفلاتر
-                            </button>
+                            {(filterStatus !== 'all' || filterPriority !== 'all' || filterAssignee !== 'all' || filterMinHours || filterMaxHours) && (
+                                <button onClick={handleClearFilters} className="btn-secondary text-sm">
+                                    مسح الفلاتر
+                                </button>
+                            )}
                         </div>
                     </div>
-                )}
+                </div>
             </div>
 
             {/* View Content */}

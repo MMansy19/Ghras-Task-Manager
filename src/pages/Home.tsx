@@ -121,7 +121,7 @@ export const Home = () => {
                 {isAdminOrSupervisor && (
                     <button
                         onClick={() => setIsCreateProjectOpen(true)}
-                        className="btn-primary flex items-center gap-2"
+                        className="btn-primary flex items-center gap-2 md:mt-auto"
                     >
                         <Plus className="w-5 h-5" />
                         إضافة مشروع جديد

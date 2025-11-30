@@ -1,7 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { TaskCard } from './TaskCard';
-import { Task, TaskStatus, STATUS_LABELS, User } from '../types';
+import { Task, TaskStatus, STATUS_LABELS } from '../types';
 
 interface KanbanBoardProps {
     statuses: TaskStatus[];
@@ -12,8 +12,6 @@ interface KanbanBoardProps {
     onViewTask?: (task: Task) => void;
     isAdminOrSupervisor: boolean;
     role?: string | null;
-    currentUserId?: number | null;
-    users?: User[];
 }
 
 export const KanbanBoard: React.FC<KanbanBoardProps> = ({
@@ -24,13 +22,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     onDeleteTask,
     onViewTask,
     isAdminOrSupervisor,
-    role,
-    currentUserId,
-    users,
 }) => {
-    const isDraggingRef = useRef(false);
-    const scrollIntervalRef = useRef<number | null>(null);
-    const mousePositionRef = useRef({ x: 0, y: 0 });
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const statusColors: Record<TaskStatus, string> = {
         new: 'border-blue-500',
@@ -41,84 +34,88 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
         docs: 'border-gray-500',
     };
 
+    // Auto-scroll on drag
+    useEffect(() => {
+        let animationFrameId: number | null = null;
+        let isDragging = false;
+        let mouseX = 0;
+
+        const handleMouseMove = (e: MouseEvent) => {
+            mouseX = e.clientX;
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            if (e.touches[0]) {
+                mouseX = e.touches[0].clientX;
+            }
+        };
+
+        const autoScroll = () => {
+            if (!containerRef.current || !isDragging) return;
+
+            const container = containerRef.current;
+            const rect = container.getBoundingClientRect();
+            const threshold = 150;
+            const scrollSpeed = 10;
+
+            let scrollAmount = 0;
+
+            // Check if mouse is near edges
+            if (mouseX < rect.left + threshold) {
+                scrollAmount = -scrollSpeed * Math.min(1, (rect.left + threshold - mouseX) / threshold);
+            } else if (mouseX > rect.right - threshold) {
+                scrollAmount = scrollSpeed * Math.min(1, (mouseX - (rect.right - threshold)) / threshold);
+            }
+
+            if (scrollAmount !== 0) {
+                container.scrollLeft += scrollAmount;
+            }
+
+            animationFrameId = requestAnimationFrame(autoScroll);
+        };
+
+        const handleDragStart = () => {
+            isDragging = true;
+            autoScroll();
+        };
+
+        const handleDragEnd = () => {
+            isDragging = false;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('touchmove', handleTouchMove);
+        document.addEventListener('dragstart', handleDragStart);
+        document.addEventListener('dragend', handleDragEnd);
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('touchmove', handleTouchMove);
+            document.removeEventListener('dragstart', handleDragStart);
+            document.removeEventListener('dragend', handleDragEnd);
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+        };
+    }, []);
+
     return (
         <DragDropContext
             onDragEnd={(result) => {
                 onDragEnd(result);
-                isDraggingRef.current = false;
-                if (scrollIntervalRef.current) {
-                    cancelAnimationFrame(scrollIntervalRef.current);
-                    scrollIntervalRef.current = null;
-                }
-            }}
-            onDragStart={() => {
-                isDraggingRef.current = true;
-
-                // Start auto-scroll loop
-                const autoScroll = () => {
-                    const container = document.querySelector('.kanban-container') as HTMLElement;
-                    if (container && isDraggingRef.current) {
-                        const rect = container.getBoundingClientRect();
-                        // Smaller threshold for mobile, larger for desktop
-                        const isMobile = window.innerWidth < 768;
-                        const threshold = isMobile ? 120 : 150;
-                        const maxScrollSpeed = isMobile ? 30 : 25;
-
-                        const currentX = mousePositionRef.current.x;
-
-                        // Calculate horizontal scroll speed based on distance from edge
-                        let scrollSpeedX = 0;
-
-                        if (currentX > 0 && currentX < rect.left + threshold) {
-                            // Near left edge - scroll left (RTL: scroll to show more columns on the right)
-                            const distance = (rect.left + threshold) - currentX;
-                            const normalizedDistance = Math.min(1, distance / threshold);
-                            scrollSpeedX = -maxScrollSpeed * normalizedDistance;
-                        } else if (currentX > rect.right - threshold && currentX < window.innerWidth) {
-                            // Near right edge - scroll right (RTL: scroll to show more columns on the left)
-                            const distance = currentX - (rect.right - threshold);
-                            const normalizedDistance = Math.min(1, distance / threshold);
-                            scrollSpeedX = maxScrollSpeed * normalizedDistance;
-                        }
-
-                        // Apply horizontal scroll
-                        if (scrollSpeedX !== 0) {
-                            container.scrollBy({
-                                left: scrollSpeedX,
-                                behavior: 'auto'
-                            });
-                        }
-                    }
-
-                    if (isDraggingRef.current) {
-                        scrollIntervalRef.current = requestAnimationFrame(autoScroll);
-                    }
-                };
-                scrollIntervalRef.current = requestAnimationFrame(autoScroll);
-            }}
-            onDragUpdate={() => {
-                // Keep the scroll loop running
             }}
         >
             <div
+                ref={containerRef}
                 className="kanban-container overflow-x-auto overflow-y-hidden -mx-2 sm:-mx-4 px-2 sm:px-4 scrollbar-custom"
                 style={{
                     WebkitOverflowScrolling: 'touch',
                     scrollbarWidth: 'thin',
                     overscrollBehaviorX: 'contain',
-                }}
-                onMouseMove={(e) => {
-                    mousePositionRef.current = { x: e.clientX, y: e.clientY };
-                }}
-                onTouchStart={(e) => {
-                    if (e.touches[0]) {
-                        mousePositionRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                    }
-                }}
-                onTouchMove={(e) => {
-                    if (e.touches[0]) {
-                        mousePositionRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                    }
                 }}
             >
                 <div className="flex gap-2 sm:gap-3 md:gap-4 pb-4 min-w-full" style={{ width: 'max-content' }}>
@@ -145,6 +142,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                             {...provided.droppableProps}
                                             className={`bg-gray-100 dark:bg-gray-900 rounded-b-lg p-2 min-h-[200px] max-h-[calc(100vh-320px)] sm:max-h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin ${snapshot.isDraggingOver ? 'bg-gray-100 dark:bg-gray-800 ring-2 ring-primary' : ''
                                                 }`}
+                                            style={{
+                                                overscrollBehavior: 'contain',
+                                            }}
                                         >
                                             {statusTasks.length === 0 ? (
                                                 <p className="text-center text-textSecondary dark:text-textSecondary-dark text-sm py-8">
@@ -162,19 +162,15 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                                                 ref={provided.innerRef}
                                                                 {...provided.draggableProps}
                                                                 {...provided.dragHandleProps}
-                                                                className={`card mb-2 cursor-grab active:cursor-grabbing ${snapshot.isDragging ? 'shadow-2xl opacity-80' : ''
+                                                                className={`card mb-2 cursor-grab active:cursor-grabbing ${snapshot.isDragging ? 'shadow-2xl opacity-90' : ''
                                                                     }`}
-                                                                style={{
-                                                                    ...provided.draggableProps.style,
-                                                                }}
+                                                                style={provided.draggableProps.style}
                                                             >
                                                                 <TaskCard
                                                                     task={task}
                                                                     onView={onViewTask ? () => onViewTask(task) : undefined}
-                                                                    onEdit={(onEditTask && (role !== 'volunteer' || task.assignee_id === currentUserId)) ? () => onEditTask(task) : undefined}
+                                                                    onEdit={onEditTask ? () => onEditTask(task) : undefined}
                                                                     onDelete={isAdminOrSupervisor && onDeleteTask ? () => onDeleteTask(task) : undefined}
-                                                                    users={users}
-                                                                    currentUserId={currentUserId}
                                                                 />
                                                             </div>
                                                         )}

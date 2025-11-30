@@ -222,6 +222,10 @@
            h-screen fixed top-0 right-0 flex flex-col shadow-lg z-40;
   }
 
+  .sidebar-collapsed {
+    @apply w-20;
+  }
+
   .sidebar-link {
     @apply flex items-center gap-3 px-4 py-3 text-textPrimary dark:text-textPrimary-dark
            hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors
@@ -230,6 +234,10 @@
 
   .sidebar-link-active {
     @apply sidebar-link bg-primary/10 text-primary font-medium;
+  }
+
+  .sidebar-link-collapsed {
+    @apply justify-center px-2;
   }
 
   /* Loading Spinner */
@@ -340,6 +348,17 @@
 
   .pe-safe {
     padding-inline-end: env(safe-area-inset-left);
+  }
+
+  /* Sidebar Responsive Utilities */
+  @media (max-width: 768px) {
+    .sidebar-mobile-hidden {
+      transform: translateX(100%);
+    }
+    
+    .sidebar-mobile-visible {
+      transform: translateX(0);
+    }
   }
 }
 

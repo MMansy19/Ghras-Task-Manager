@@ -5,6 +5,7 @@ import { getCurrentUser, updateCurrentUser, fetchTeams } from '../api/mockApi';
 import toast from 'react-hot-toast';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ROLE_LABELS, WORK_FIELDS, User as UserType } from '../types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { User, Mail, MapPin, Briefcase, Calendar, Clock, Users as UsersIcon, Edit2, Save, X } from 'lucide-react';
 
 export const Profile = () => {
@@ -192,18 +193,22 @@ export const Profile = () => {
                             <div className="flex-1">
                                 <p className="text-sm text-textSecondary dark:text-textSecondary-dark mb-1">مجال العمل</p>
                                 {isEditing ? (
-                                    <select
+                                    <Select
                                         value={formData.job_field}
-                                        onChange={(e) => setFormData({ ...formData, job_field: e.target.value })}
-                                        className="input w-full"
+                                        onValueChange={(value) => setFormData({ ...formData, job_field: value })}
                                     >
-                                        <option value="">اختر مجال العمل</option>
-                                        {WORK_FIELDS.map((field) => (
-                                            <option key={field} value={field}>
-                                                {field}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="اختر مجال العمل" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="">اختر مجال العمل</SelectItem>
+                                            {WORK_FIELDS.map((field) => (
+                                                <SelectItem key={field} value={field}>
+                                                    {field}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 ) : (
                                     <p className="font-medium">{currentUser.job_field || '-'}</p>
                                 )}

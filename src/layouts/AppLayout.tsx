@@ -5,14 +5,25 @@ import { useRole } from '../hooks/useRole';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Moon, Sun, Users, BarChart3, LogOut, User } from 'lucide-react';
+import { AlertTriangle, Moon, Sun, Users, BarChart3, LogOut, User, Menu, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export const AppLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { role, setRole } = useRole();
     const { isDark, toggle } = useDarkMode();
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile sidebar state
+
+    // Initialize collapsed state from localStorage
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+        const saved = localStorage.getItem('sidebarCollapsed');
+        return saved === 'true';
+    });
+
+    // Save collapsed state to localStorage
+    useEffect(() => {
+        localStorage.setItem('sidebarCollapsed', String(sidebarCollapsed));
+    }, [sidebarCollapsed]);
 
     const { data: projects, isLoading: projectsLoading, error } = useQuery({
         queryKey: ['projects'],
@@ -84,38 +95,58 @@ export const AppLayout = () => {
                 className="md:hidden fixed top-4 left-4 z-50 p-2 bg-surface dark:bg-surface-dark rounded-md shadow-lg"
                 aria-label="القائمة"
             >
-                <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                >
-                    <path d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
+                {sidebarOpen ? (
+                    <X className="w-6 h-6" />
+                ) : (
+                    <Menu className="w-6 h-6" />
+                )}
+            </button>
+
+            {/* Desktop Collapse Toggle Button */}
+            <button
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="hidden md:block fixed top-4 left-4 z-50 p-2 bg-surface dark:bg-surface-dark rounded-md shadow-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label={sidebarCollapsed ? "توسيع القائمة" : "طي القائمة"}
+            >
+                {sidebarCollapsed ? (
+                    <ChevronLeft className="w-5 h-5" />
+                ) : (
+                    <ChevronRight className="w-5 h-5" />
+                )}
             </button>
 
             {/* Sidebar */}
             <aside
-                className={`sidebar ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'
-                    } md:translate-x-0 transition-transform duration-300`}
+                className={`
+                    w-64
+                    ${sidebarCollapsed ? 'md:w-20' : 'md:w-64'}
+                    ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}
+                    md:translate-x-0
+                    bg-surface dark:bg-surface-dark border-l border-gray-200 dark:border-gray-700
+                    h-screen fixed top-0 right-0 flex flex-col shadow-lg z-40
+                    transition-all duration-300 ease-in-out
+                `}
             >
                 {/* Header */}
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                    <Link to="/app" className="flex items-center gap-3 mb-2 hover:opacity-80 transition-opacity">
+                    <Link
+                        to="/app"
+                        className={`flex items-center gap-3 mb-2 hover:opacity-80 transition-opacity ${sidebarCollapsed ? 'md:justify-center' : ''
+                            }`}
+                    >
                         <img
                             src="/logo.png"
                             alt="شعار غراس"
                             loading="lazy"
                             width="40"
                             height="40"
-                            className="h-10 w-10 object-contain"
+                            className="h-10 w-10 object-contain flex-shrink-0"
                         />
-                        <h1 className="text-xl font-bold text-primary">غراس مدير المهام</h1>
+                        <h1 className={`text-xl font-bold text-primary whitespace-nowrap overflow-hidden ${sidebarCollapsed ? 'md:hidden' : ''}`}>
+                            غراس مدير المهام
+                        </h1>
                     </Link>
-                    <p className="text-sm text-textSecondary dark:text-textSecondary-dark text-center">
+                    <p className={`text-sm text-textSecondary dark:text-textSecondary-dark text-center ${sidebarCollapsed ? 'md:hidden' : ''}`}>
                         {role === 'admin' && 'مدير النظام'}
                         {role === 'supervisor' && 'مسؤول الفريق'}
                         {role === 'volunteer' && 'عضو'}
@@ -126,11 +157,13 @@ export const AppLayout = () => {
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                     <button
                         onClick={toggle}
-                        className="w-full flex items-center justify-between px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        className={`w-full flex items-center gap-3 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors justify-between ${sidebarCollapsed ? 'md:justify-center' : ''
+                            }`}
                         aria-label="تبديل الوضع الليلي"
+                        title={isDark ? 'الوضع الليلي' : 'الوضع النهاري'}
                     >
-                        {isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-                        <span className="text-sm">
+                        {isDark ? <Moon className="w-5 h-5 flex-shrink-0" /> : <Sun className="w-5 h-5 flex-shrink-0" />}
+                        <span className={`text-sm ${sidebarCollapsed ? 'md:hidden' : ''}`}>
                             {isDark ? 'الوضع الليلي' : 'الوضع النهاري'}
                         </span>
                     </button>
@@ -138,7 +171,8 @@ export const AppLayout = () => {
 
                 {/* Projects Navigation */}
                 <div className="flex-1 overflow-y-auto scrollbar-thin p-4">
-                    <h3 className="text-xs font-bold text-textSecondary dark:text-textSecondary-dark uppercase mb-2">
+                    <h3 className={`text-xs font-bold text-textSecondary dark:text-textSecondary-dark uppercase mb-2 ${sidebarCollapsed ? 'md:hidden' : ''
+                        }`}>
                         المشاريع
                     </h3>
                     <nav className="space-y-1 mb-6">
@@ -146,67 +180,90 @@ export const AppLayout = () => {
                             <Link
                                 key={project.id}
                                 to={`/app/project/${project.id}`}
-                                className={
-                                    isActiveLink(`/app/project/${project.id}`)
-                                        ? 'sidebar-link-active'
-                                        : 'sidebar-link'
-                                }
+                                className={`
+                                    flex items-center gap-3 px-4 py-3 rounded-md transition-colors text-right
+                                    ${isActiveLink(`/app/project/${project.id}`)
+                                        ? 'bg-primary/10 text-primary font-medium'
+                                        : 'text-textPrimary dark:text-textPrimary-dark hover:bg-gray-100 dark:hover:bg-gray-800'
+                                    }
+                                    ${sidebarCollapsed ? 'md:justify-center' : ''}
+                                `}
                                 onClick={() => setSidebarOpen(false)}
+                                title={sidebarCollapsed ? project.name : ''}
                             >
-                                <span className="flex-1">{project.name}</span>
+                                <div className={`w-2 h-2 rounded-full ${project.active ? 'bg-green-500' : 'bg-gray-400'
+                                    } flex-shrink-0`} />
+                                <span className={`flex-1 truncate ${sidebarCollapsed ? 'md:hidden' : ''}`}>{project.name}</span>
                             </Link>
                         ))}
                     </nav>
 
                     {/* User Profile Links */}
-                    <h3 className="text-xs font-bold text-textSecondary dark:text-textSecondary-dark uppercase mb-2">
+                    <h3 className={`text-xs font-bold text-textSecondary dark:text-textSecondary-dark uppercase mb-2 ${sidebarCollapsed ? 'md:hidden' : ''
+                        }`}>
                         الملف الشخصي
                     </h3>
                     <nav className="space-y-1 mb-6">
                         <Link
                             to="/app/profile"
-                            className={
-                                isActiveLink('/app/profile')
-                                    ? 'sidebar-link-active'
-                                    : 'sidebar-link'
-                            }
+                            className={`
+                                flex items-center gap-3 px-4 py-3 rounded-md transition-colors text-right
+                                ${isActiveLink('/app/profile')
+                                    ? 'bg-primary/10 text-primary font-medium'
+                                    : 'text-textPrimary dark:text-textPrimary-dark hover:bg-gray-100 dark:hover:bg-gray-800'
+                                }
+                                ${sidebarCollapsed ? 'md:justify-center' : ''}
+                            `}
                             onClick={() => setSidebarOpen(false)}
+                            title={sidebarCollapsed ? 'ملفي الشخصي' : ''}
                         >
-                            <User className="w-5 h-5" />
-                            <span className="flex-1">ملفي الشخصي</span>
+                            <User className="w-5 h-5 flex-shrink-0" />
+                            <span className={`flex-1 ${sidebarCollapsed ? 'md:hidden' : ''
+                                }`}>ملفي الشخصي</span>
                         </Link>
                     </nav>
 
                     {/* Admin/Supervisor Links */}
                     {isAdminOrSupervisor && (
                         <>
-                            <h3 className="text-xs font-bold text-textSecondary dark:text-textSecondary-dark uppercase mb-2">
+                            <h3 className={`text-xs font-bold text-textSecondary dark:text-textSecondary-dark uppercase mb-2 ${sidebarCollapsed ? 'md:hidden' : ''
+                                }`}>
                                 الإدارة
                             </h3>
                             <nav className="space-y-1">
                                 <Link
                                     to="/app/users"
-                                    className={
-                                        isActiveLink('/app/users')
-                                            ? 'sidebar-link-active'
-                                            : 'sidebar-link'
-                                    }
+                                    className={`
+                                        flex items-center gap-3 px-4 py-3 rounded-md transition-colors text-right
+                                        ${isActiveLink('/app/users')
+                                            ? 'bg-primary/10 text-primary font-medium'
+                                            : 'text-textPrimary dark:text-textPrimary-dark hover:bg-gray-100 dark:hover:bg-gray-800'
+                                        }
+                                        ${sidebarCollapsed ? 'md:justify-center' : ''}
+                                    `}
                                     onClick={() => setSidebarOpen(false)}
+                                    title={sidebarCollapsed ? 'إدارة المستخدمين' : ''}
                                 >
-                                    <Users className="w-5 h-5" />
-                                    <span className="flex-1">إدارة المستخدمين</span>
+                                    <Users className="w-5 h-5 flex-shrink-0" />
+                                    <span className={`flex-1 ${sidebarCollapsed ? 'md:hidden' : ''
+                                        }`}>إدارة المستخدمين</span>
                                 </Link>
                                 <Link
                                     to="/app/stats"
-                                    className={
-                                        isActiveLink('/app/stats')
-                                            ? 'sidebar-link-active'
-                                            : 'sidebar-link'
-                                    }
+                                    className={`
+                                        flex items-center gap-3 px-4 py-3 rounded-md transition-colors text-right
+                                        ${isActiveLink('/app/stats')
+                                            ? 'bg-primary/10 text-primary font-medium'
+                                            : 'text-textPrimary dark:text-textPrimary-dark hover:bg-gray-100 dark:hover:bg-gray-800'
+                                        }
+                                        ${sidebarCollapsed ? 'md:justify-center' : ''}
+                                    `}
                                     onClick={() => setSidebarOpen(false)}
+                                    title={sidebarCollapsed ? 'الإحصائيات' : ''}
                                 >
-                                    <BarChart3 className="w-5 h-5" />
-                                    <span className="flex-1">الإحصائيات</span>
+                                    <BarChart3 className="w-5 h-5 flex-shrink-0" />
+                                    <span className={`flex-1 ${sidebarCollapsed ? 'md:hidden' : ''
+                                        }`}>الإحصائيات</span>
                                 </Link>
                             </nav>
                         </>
@@ -217,10 +274,12 @@ export const AppLayout = () => {
                 <div className="p-4 border-t border-gray-200 dark:border-gray-700">
                     <button
                         onClick={handleLogout}
-                        className="w-full btn-danger flex items-center justify-center gap-2"
+                        className={`w-full btn-danger flex items-center gap-2 justify-center ${sidebarCollapsed ? 'md:px-2' : ''
+                            }`}
+                        title={sidebarCollapsed ? 'تسجيل الخروج' : ''}
                     >
-                        <LogOut className="w-5 h-5" />
-                        <span>تسجيل الخروج</span>
+                        <LogOut className="w-5 h-5 flex-shrink-0" />
+                        <span className={sidebarCollapsed ? 'md:hidden' : ''}>تسجيل الخروج</span>
                     </button>
                 </div>
             </aside>
@@ -234,7 +293,10 @@ export const AppLayout = () => {
             )}
 
             {/* Main Content */}
-            <main className="md:mr-64 min-h-screen">
+            <main className={`
+                ${sidebarCollapsed ? 'md:mr-20' : 'md:mr-64'}
+                min-h-screen transition-all duration-300
+            `}>
                 <div className="p-4 md:p-8">
                     <Outlet />
                 </div>
