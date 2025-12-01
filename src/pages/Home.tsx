@@ -117,7 +117,13 @@ export const Home = () => {
     return (
         <div>
             {/* Header */}
-            <div className="mb-6 flex flex-col sm:flex-row-reverse items-start sm:items-center justify-between gap-4">
+            <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-4xl font-bold mb-2 text-primary">المشاريع</h1>
+                    <p className="text-lg text-textSecondary dark:text-textSecondary-dark">
+                        اختر مشروعًا لعرض وإدارة المهام الخاصة به
+                    </p>
+                </div>
                 {isAdminOrSupervisor && (
                     <button
                         onClick={() => setIsCreateProjectOpen(true)}
@@ -127,12 +133,7 @@ export const Home = () => {
                         إضافة مشروع جديد
                     </button>
                 )}
-                <div>
-                    <h1 className="text-4xl font-bold mb-2 text-primary">المشاريع</h1>
-                    <p className="text-lg text-textSecondary dark:text-textSecondary-dark">
-                        اختر مشروعًا لعرض وإدارة المهام الخاصة به
-                    </p>
-                </div>
+
             </div>
             {/* Projects Grid */}
             {activeProjects && activeProjects.length > 0 ? (
